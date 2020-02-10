@@ -202,101 +202,7 @@ class Asteroid {
      }
      return result;
   }
-  map(){
-          let result =`<table class='mist' id='map'>`;
 
-          let charLength = gridChars.length;
-          let m =0;
-          let gridLength = 10;
-          let cBI= document.getElementById(`g${commander.position}`)//commander border indicader
-
-
-            for(let i =0;i<charLength;i++){
-          result += `<tr class='mist'>`
-
-            var lChars = gridChars2[i]
-           for(let n =0;n<gridChars.length;n++){
-             let node = `${gridChars[i]}${gridChars2[n]}`
-             m++
-             if(node==this.position){
-              let num = gridChars2[n] //actors
-              let numPointer = graphMap.getGrid(num);
-              if(numPointer == undefined){
-                var points = new Grid(gridChars[i],gridChars2[n],i,n);
-              }
-
-
-               graphMap.addGrid(points);
-               result += `<td id='${node}' class='mist sd'  ${cBI} style='color:rgba(255,0, 38, 1)'>X</td>`
-                }else {
-
-/////
-                 let num = gridChars2[n] //actors
-                let numPointer = graphMap.getGrid(num);
-                if(numPointer == undefined){
-                  var points = new Grid(gridChars[i],gridChars2[n],i,n);
-                }
-
-
-                 graphMap.addGrid(points);
-                // console.log(`num :${n}`)
-
-                  result += `<td id='${node}'  class='mist'>${gridChars[i]}${gridChars2[n]}</td>`;
-                }
-
-            }
-
-              result += `</tr>`;
-          }
-
-
-          result += ` ${this.name}`
-        //  console.log(gridChars[(graphMap.grids[0].aIndex +1)],`:aindex`);
-          for(let j = 0;j<graphMap.grids.length;j++){
-            let undefed = `includes("undefined");`
-            let grid = graphMap.grids[j];
-            let aIndex=graphMap.grids[j].aIndex;
-            let bIndex=graphMap.grids[j].bIndex;
-            let direction = {
-              up: `${gridChars[(aIndex -1)]}${bIndex}`,
-             down:`${gridChars[(aIndex +1)]}${bIndex}`,
-             left:`${gridChars[aIndex]}${(bIndex -1)}`,
-             right:`${gridChars[aIndex]}${(bIndex +1)}`
-
-          }
-          if(graphMap.graph[direction.up] ==undefined){
-            console.log(`undefined found up ${direction.up}`)
-
-
-          }else{
-            grid.edges.push(graphMap.graph[direction.up])
-          //  console.log(direction.up,)
-          }
-          if(graphMap.graph[direction.down] ==undefined){
-            console.log(`undefined found down ${direction.down}`)
-
-          }else{
-            grid.edges.push(graphMap.graph[direction.down])
-          //  console.log(direction.down)
-          }
-          if(graphMap.graph[direction.left] ==undefined){
-            console.log(`undefined found left ${direction.let}`)
-
-          }else{
-            grid.edges.push(graphMap.graph[direction.left])
-          //  console.log(direction.left)
-          }
-          if(graphMap.graph[direction.right] ==undefined){
-            console.log(`undefined found right ${direction.right}`)
-
-          }else{
-            grid.edges.push(graphMap.graph[direction.right])
-          //  console.log(direction.right)
-          }
-
-        }
-          return result;
-  }
 
 }//end asteroid class
 ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -341,6 +247,101 @@ class Graph{
     this.end=this.graph[node]
     return this.end;
   }
+  map(){
+          let result =`<table class='mist' id='map'>`;
+
+          let charLength = gridChars.length;
+          let m =0;
+          let gridLength = 10;
+          let cBI= document.getElementById(`g${commander.position}`)//commander border indicader
+
+            //create grid points and store them
+            for(let i =0;i<charLength;i++){
+          result += `<tr class='mist'>`
+
+            var lChars = gridChars2[i]
+           for(let n =0;n<gridChars.length;n++){
+             let node = `${gridChars[i]}${gridChars2[n]}`
+             m++
+             if(node==asteroid1.position){
+              let num = gridChars2[n] //actors
+              let numPointer = this.getGrid(num);
+              if(numPointer == undefined){
+                var points = new Grid(gridChars[i],gridChars2[n],i,n);
+              }
+
+
+               this.addGrid(points);
+               result += `<td id='${node}' class='mist sd'  ${cBI} style='color:rgba(255,0, 38, 1)'>X</td>`
+                }else {
+
+/////
+                 let num = gridChars2[n] //actors
+                let numPointer = this.getGrid(num);
+                if(numPointer == undefined){
+                  var points = new Grid(gridChars[i],gridChars2[n],i,n);
+                }
+
+
+                 this.addGrid(points);
+                // console.log(`num :${n}`)
+
+                  result += `<td id='${node}'  class='mist'>${gridChars[i]}${gridChars2[n]}</td>`;
+                }
+
+            }
+
+              result += `</tr>`;
+          }
+
+
+          result += ` ${this.name}`
+        //  console.log(gridChars[(this.grids[0].aIndex +1)],`:aindex`);
+          for(let j = 0;j<this.grids.length;j++){
+            let undefed = `includes("undefined");`
+            let grid = this.grids[j];
+            let aIndex=this.grids[j].aIndex;
+            let bIndex=this.grids[j].bIndex;
+            let direction = {
+              up: `${gridChars[(aIndex -1)]}${bIndex}`,
+             down:`${gridChars[(aIndex +1)]}${bIndex}`,
+             left:`${gridChars[aIndex]}${(bIndex -1)}`,
+             right:`${gridChars[aIndex]}${(bIndex +1)}`
+
+          }
+          if(this.graph[direction.up] ==undefined){
+            console.log(`undefined found up ${direction.up}`)
+
+
+          }else{
+            grid.edges.push(this.graph[direction.up])
+          //  console.log(direction.up,)
+          }
+          if(this.graph[direction.down] ==undefined){
+            console.log(`undefined found down ${direction.down}`)
+
+          }else{
+            grid.edges.push(this.graph[direction.down])
+          //  console.log(direction.down)
+          }
+          if(this.graph[direction.left] ==undefined){
+            console.log(`undefined found left ${direction.let}`)
+
+          }else{
+            grid.edges.push(this.graph[direction.left])
+          //  console.log(direction.left)
+          }
+          if(this.graph[direction.right] ==undefined){
+            console.log(`undefined found right ${direction.right}`)
+
+          }else{
+            grid.edges.push(this.graph[direction.right])
+          //  console.log(direction.right)
+          }
+
+        }
+          return result;
+  }
 }
 
 
@@ -353,10 +354,10 @@ https://en.wikipedia.org/wiki/Breadth-first_search
 
 */
 //start cord and end cord passed in
-function bfs(graph,start,end){
-  var graph = graph;
-  var start=  graph.setStart(start);
-   var end =  graph.setEnd(end);
+function bfs(g,s,e){
+  var graph = g;
+  var start=  graph.setStart(s);
+   var end =  graph.setEnd(e);
     var queue =[];
 //  console.log(start)
 //  console.log(end)
@@ -505,12 +506,12 @@ function scanner(){
   let gridLength = 10;
 
 
- // let aP= Math.random()*graphMap.graph.length  ;
+ // let aP= Math.random()*this.graph.length  ;
   //asteroid.position = aP;
- // console.log(graphMap.graph. )
-graphMap.grids =[];
+ // console.log(this.graph. )
+this.grids =[];
 
-document.getElementById('terminal').innerHTML = `${asteroid1.map()}`;
+document.getElementById('terminal').innerHTML = `${graphMap.map()}`;
   let ras =asteroid1.position
  // console.log(ras,'ras')
 
