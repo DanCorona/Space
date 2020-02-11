@@ -2,6 +2,10 @@
 var status = ["Idling","Traveling","Scanning","Minning"];
 var gridChars='ABCDEFGHIJ';
 var gridChars2='0123456789';
+var asteroids=[];
+//emojis are cool 👨‍💻
+const shipIcon = "🚀";
+const asteroidIcon= '🌑';
 class Player {
   constructor(name){
     let hp = Math.floor(Math.random() * (20 - 16 + 1)) + 16; ;
@@ -128,9 +132,9 @@ class Asteroid {
 
   }
   generate_Minerals(scanlv){
-    let base_minerals= ['iron','Lithium','Aluminum','copper','zinc','nickel','tin']
-    let precious_metals=['gold','silver','platinum','Palladium']
-    let utility_metals=['titanium','uranium']
+    let base_minerals= ['iron','Lithium','Aluminum','copper','zinc','nickel','tin'];
+    let precious_metals=['gold','silver','platinum','Palladium'];
+    let utility_metals=['titanium','uranium'];
     let terminal = document.getElementById('terminal');
     let bscan =0;
     let pscan =0;
@@ -163,7 +167,7 @@ class Asteroid {
       }
 //terminal.innerHTML = `<table id='t'> </table>`
         let v = Object.values(this.minerals);////empty before the above loop runs
-        let k = Object.keys(this.minerals)
+        let k = Object.keys(this.minerals);
         let table = document.createElement('table');
         let row = document.createElement('tr')
         row.innerHTML=`<td><strong>Mineral</strong></td><td><b>AMT</b></td>`
@@ -187,7 +191,7 @@ class Asteroid {
         console.log(k,v);///key and value of minerals
 
   }///end generate_Minerals
-   makeid(length) {
+  makeid(length) {
      let result           = '';
      let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
      let num ='0123456789';
@@ -204,7 +208,29 @@ class Asteroid {
   }
 
 
+
 }//end asteroid class
+function mapAsteroids(){
+
+
+  for (var i = 0; i < asteroids.length; i++) {
+    let aPos = asteroids[i].position;
+    mapCord = document.getElementById(aPos);
+    mapCord.style.color = 'red';
+    mapCord.innerHTML+= asteroidIcon ;
+
+  }
+  let comNode= document.getElementById(commander.position)
+  comNode.style.borderColor = "rgba(74, 246, 38, 1)";
+  comNode.innerHTML += shipIcon;
+}
+function generator(n){
+  for (var i = 0; i < n; i++) {
+    let a = new Asteroid;
+    asteroids.push(a);
+  }
+
+}
 ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 class Grid{
@@ -212,12 +238,12 @@ class Grid{
     this.value=aValue+bValue;
     this.aIndex=aIndex;
     this.bIndex=bIndex;
-  this.edges=[]
-  this.searched =false
-  this.parent=null
+  this.edges=[];
+  this.searched =false;
+  this.parent=null;
   }
   addEdge(sides){
-    this.edges.push(sides)
+    this.edges.push(sides);
   }
 
 }
@@ -231,13 +257,13 @@ class Graph{
   addGrid(g){
     ///grid into array
     this.grids.push(g);
-    let id = g.value
+    let id = g.value;
     /// grid into table"hash"
     this.graph[id] = g;
   }
   getGrid(num){
-    var n = this.graph[num]
-    return n
+    var n = this.graph[num];
+    return n;
   }
   setStart(node){
     this.start=this.graph[node]
@@ -247,56 +273,37 @@ class Graph{
     this.end=this.graph[node]
     return this.end;
   }
+
   map(){
           let result =`<table class='mist' id='map'>`;
-
           let charLength = gridChars.length;
           let m =0;
-          let gridLength = 10;
           let cBI= document.getElementById(`g${commander.position}`)//commander border indicader
 
             //create grid points and store them
             for(let i =0;i<charLength;i++){
           result += `<tr class='mist'>`
 
-            var lChars = gridChars2[i]
+            var lChars = gridChars2[i];
            for(let n =0;n<gridChars.length;n++){
              let node = `${gridChars[i]}${gridChars2[n]}`
              m++
-             if(node==asteroid1.position){
-              let num = gridChars2[n] //actors
-              let numPointer = this.getGrid(num);
-              if(numPointer == undefined){
-                var points = new Grid(gridChars[i],gridChars2[n],i,n);
-              }
-
-
-               this.addGrid(points);
-               result += `<td id='${node}' class='mist sd'  ${cBI} style='color:rgba(255,0, 38, 1)'>X</td>`
-                }else {
-
-/////
-                 let num = gridChars2[n] //actors
+                let num = gridChars2[n] //actors
                 let numPointer = this.getGrid(num);
                 if(numPointer == undefined){
-                  var points = new Grid(gridChars[i],gridChars2[n],i,n);
+                var points = new Grid(gridChars[i],gridChars2[n],i,n);
                 }
-
-
-                 this.addGrid(points);
-                // console.log(`num :${n}`)
-
-                  result += `<td id='${node}'  class='mist'>${gridChars[i]}${gridChars2[n]}</td>`;
-                }
+                  this.addGrid(points);
+                  result += `<td id='${node}'  class='mist'></td>`;
 
             }
-
               result += `</tr>`;
           }
 
 
           result += ` ${this.name}`
         //  console.log(gridChars[(this.grids[0].aIndex +1)],`:aindex`);
+        //add edges for the grids
           for(let j = 0;j<this.grids.length;j++){
             let undefed = `includes("undefined");`
             let grid = this.grids[j];
@@ -306,7 +313,11 @@ class Graph{
               up: `${gridChars[(aIndex -1)]}${bIndex}`,
              down:`${gridChars[(aIndex +1)]}${bIndex}`,
              left:`${gridChars[aIndex]}${(bIndex -1)}`,
-             right:`${gridChars[aIndex]}${(bIndex +1)}`
+             right:`${gridChars[aIndex]}${(bIndex +1)}`,
+             upLeft:`${gridChars[aIndex -1]}${(bIndex -1)}`,
+             downLeft:`${gridChars[aIndex +1]}${(bIndex -1)}`,
+             downRight:`${gridChars[aIndex +1]}${(bIndex +1)}`,
+             upRight:`${gridChars[aIndex -1]}${(bIndex +1)}`,
 
           }
           if(this.graph[direction.up] ==undefined){
@@ -340,7 +351,34 @@ class Graph{
           }
 
         }
+        ///////////////<~~~~~~~~~~~~~Makes a grid ~~~~~~~~~~~~~~~~~~~~>
+        /*
+        0a0b0c0d0e0f0g0h0i0j
+        1a1b1c1d1e1f1g1h1i1j
+        2a2b2c2d2e2f2g2h2i2j
+        3a3b3c3d3e3f3g3h3i3j
+        4a4b4c4d4e4f4g4h4i4j
+        5a5b5c5d5e5f5g5h5i5j
+        6a6b6c6d6e6f6g6h6i6j
+        7a7b7c7d7e7f7g7h7i7j
+        8a8b8c8d8e8f8g8h8i8j
+        9a9b9c9d9e9f9g9h9i9j
+        */
+
+
           return result;
+  }
+  mapClick(){
+    for (var i = 0; i < this.grids.length; i++) {
+    let  grid = document.getElementById(this.grids[i].value)
+        let end = this.grids[i].value;
+        let start = commander.position;
+        let graph= graphMap;
+        grid.onclick = () => bfs(graph,start,end);
+
+
+
+    }
   }
 }
 
@@ -412,117 +450,109 @@ for (let i =path.length -1;i>=0;i--){
 
 console.log(distance);
 //multiply the timer by I   delaying the color chage
+
 for(let i =0;i<distance.length;i++){
   setTimeout(function(){
+    commander.position =distance[i]
+    scanner()
     document.getElementById(distance[i]).style.backgroundColor = 'red';
-    document.getElementById(distance[i]).innerHTML = 'o';}, i*1000);
+    //document.getElementById(distance[i]).innerHTML = shipIcon;
+  }, i*1000);
+
+
+}
+//reset the map when done  & set the ships position
+setTimeout(function(){
+  commander.position =current.value;
+  scanner()
+
+
+}, distance.length*1000);
 
 
 }
 
-}
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /////countdown functions
 
 function cdnn(secs){
   let now = new Date();
-let timeNow = now.getTime()/1000;
+  let timeNow = now.getTime()/1000;
+  let newTime = (timeNow + secs ); //add 1 minute
+  let newTimeDate = new Date(newTime*1000);
+  if(newTimeDate == `Invalid Date`){
+    let op =document.getElementById("options");
+    op.style.backgroundColor = `rgba(0,0,0,.9)`;
+    op.style.color = `rgba(0,255,0,1)`
+    op.innerHTML = "ERRROR";
+  }else {
 
-let newTime = (timeNow + secs ); //add 1 minute
+  commander.status = status[1];///['Idling',`Traveling`,"Scanning","Minning"];
+  let x = setInterval(function() {
+    console.log(timeNow)
+    console.log(newTime)
+    console.log(now)
+    console.log(newTimeDate);
+    let nowt = new Date().getTime();
+    let nowx =newTimeDate.getTime();
+    let distance = nowx-nowt;
+    let days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    document.getElementById("options").innerHTML = `
+      <center>
+      <table>
+      <th align='center'>Travel Time</th>
+      <tr><td>
+      <table>
+      <tr><td>days</td><td>hours</td><td>minutes</td><td>seconds</td></tr>
+      <tr><td>${days}</td><td>${hours}</td><td>${minutes}</td><td>${seconds}</td></tr>
+      </ table>
+        </td></tr>
+        </table>
+      <br> commander fule ${Math.round(commander.stats.fule)}
+    `;
 
-let newTimeDate = new Date(newTime*1000);
-if(newTimeDate == `Invalid Date`){
-  let op =document.getElementById("options");
-  op.style.backgroundColor = `rgba(0,0,0,.9)`;
-  op.style.color = `rgba(0,255,0,1)`
-op.innerHTML = "ERRROR";
-}else {
-
-commander.status = status[1];///['Idling',`Traveling`,"Scanning","Minning"];
-let x = setInterval(function() {
-  console.log(timeNow)
-  console.log(newTime)
-  console.log(now)
-  console.log(newTimeDate);
-  let nowt = new Date().getTime();
-  let nowx =newTimeDate.getTime();
-  let distance = nowx-nowt;
-  let days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-  document.getElementById("options").innerHTML = `
-<center>
-  <table>
-  <th align='center'>Travel Time</th>
-  <tr><td>
-  <table>
-  <tr><td>days</td><td>hours</td><td>minutes</td><td>seconds</td></tr>
-  <tr><td>${days}</td><td>${hours}</td><td>${minutes}</td><td>${seconds}</td></tr>
-  </ table>
-    </td></tr>
-    </table>
-  <br> commander fule ${Math.round(commander.stats.fule)}
-  `;
-
-document.getElementById("info").innerHTML = commander.statsDisplay();
-  // If the count down is finished, write some text
-  if (nowt > newTimeDate) {
-    commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
-    clearInterval(x);
-    document.getElementById("options").innerHTML = "arived";
     document.getElementById("info").innerHTML = commander.statsDisplay();
-  }
-  if (commander.stats.fule == 0) {
-    commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
-    clearInterval(x);
-    document.getElementById("options").innerHTML = "Ran out of fule";
-    document.getElementById("info").innerHTML = commander.statsDisplay();
-  }
-commander.stats.fule -= 1
+    // If the count down is finished, write some text
+    if (nowt > newTimeDate) {
+      commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
+      clearInterval(x);
+      document.getElementById("options").innerHTML = "arived";
+      document.getElementById("info").innerHTML = commander.statsDisplay();
+    }
+    if (commander.stats.fule == 0) {
+      commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
+      clearInterval(x);
+      document.getElementById("options").innerHTML = "Ran out of fule";
+      document.getElementById("info").innerHTML = commander.statsDisplay();
+    }
+  commander.stats.fule -= 1
 }, 1000)};}
 ////end the cound down timer
 function scanner(){
   let roll= Math.random() *20 +1;
   let distance = 0;
   let gridNum =0;
-///////////////<~~~~~~~~~~~~~Makes a grid ~~~~~~~~~~~~~~~~~~~~>
-/*
-0a0b0c0d0e0f0g0h0i0j
-1a1b1c1d1e1f1g1h1i1j
-2a2b2c2d2e2f2g2h2i2j
-3a3b3c3d3e3f3g3h3i3j
-4a4b4c4d4e4f4g4h4i4j
-5a5b5c5d5e5f5g5h5i5j
-6a6b6c6d6e6f6g6h6i6j
-7a7b7c7d7e7f7g7h7i7j
-8a8b8c8d8e8f8g8h8i8j
-9a9b9c9d9e9f9g9h9i9j
-*/
+
   let result ='<table>';
   let gridChars='ABCDEFGHIJ';
   let charLength = gridChars.length;
   let m =0;
   let gridLength = 10;
-
-
- // let aP= Math.random()*this.graph.length  ;
-  //asteroid.position = aP;
- // console.log(this.graph. )
-this.grids =[];
-
-document.getElementById('terminal').innerHTML = `${graphMap.map()}`;
-  let ras =asteroid1.position
- // console.log(ras,'ras')
-
-
+  document.getElementById('terminal').innerHTML = `${graphMap.map()}`;
+  mapAsteroids();
+  graphMap.mapClick();
 };
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
 //create a commander hero
 var commander = new Player("bob");
 var graphMap = new Graph;
 var asteroid1 = new Asteroid();
-console.log(asteroid1.position,'apos')
+asteroids.push(asteroid1)
+generator(4);
+//console.log(asteroid1.position,'apos')
  console.log(status,status[0])
 commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
  let sword= {name:"sword",damage:3,bonus:0};
