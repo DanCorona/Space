@@ -2,7 +2,8 @@
 var status = ["Idling","Traveling","Scanning","Minning"];
 var gridChars='ABCDEFGHIJ';
 var gridChars2='0123456789';
-var asteroids=[];
+var spaceBodies={};
+var spaceIcons={shipIcon:"🚀",asteroidIcon: '🌑',}
 //emojis are cool 👨‍💻
 const shipIcon = "🚀";
 const asteroidIcon= '🌑';
@@ -19,6 +20,7 @@ class Player {
    this.maxMana=mana;
    this.mana = mana;
    this.position= 'A5';
+   this.icon= shipIcon
    this.stats={
      air:100,
      food:100,
@@ -210,24 +212,13 @@ class Asteroid {
 
 
 }//end asteroid class
-function mapAsteroids(){
 
-
-  for (var i = 0; i < asteroids.length; i++) {
-    let aPos = asteroids[i].position;
-    mapCord = document.getElementById(aPos);
-    mapCord.style.color = 'red';
-    mapCord.innerHTML+= asteroidIcon ;
-
-  }
-  let comNode= document.getElementById(commander.position)
-  comNode.style.borderColor = "rgba(74, 246, 38, 1)";
-  comNode.innerHTML += shipIcon;
-}
 function generator(n){
   for (var i = 0; i < n; i++) {
+
     let a = new Asteroid;
-    asteroids.push(a);
+
+    spaceBodies[a.name]= a;
   }
 
 }
@@ -241,6 +232,7 @@ class Grid{
   this.edges=[];
   this.searched =false;
   this.parent=null;
+
   }
   addEdge(sides){
     this.edges.push(sides);
@@ -253,6 +245,7 @@ class Graph{
     this.graph={};
     this.start= null;
     this.end = null;
+    this.showGrids='grids';
   }
   addGrid(g){
     ///grid into array
@@ -274,31 +267,36 @@ class Graph{
     return this.end;
   }
 
-  map(){
-          let result =`<table class='mist' id='map'>`;
+  map(){this.grids =[];
+          let result =`<table class='mist' id='mapTable'>`;
           let charLength = gridChars.length;
           let m =0;
-          let cBI= document.getElementById(`g${commander.position}`)//commander border indicader
+          var styleClass=' styleClass';
+          if (this.showGrids == 'noGrids') {
+             styleClass=`class='grids'`;
 
-            //create grid points and store them
+          }else if(this.showGrids == 'grids'){
+             styleClass = `class='noGrids'`
+          }
+          //create grid points and store them
             for(let i =0;i<charLength;i++){
-          result += `<tr class='mist'>`
-
-            var lChars = gridChars2[i];
-           for(let n =0;n<gridChars.length;n++){
-             let node = `${gridChars[i]}${gridChars2[n]}`
-             m++
+              result += `<tr class='mist' id='mapTableRow'>`
+              for(let n =0;n<gridChars.length;n++){
+                let node = `${gridChars[i]}${gridChars2[n]}`
+                m++
                 let num = gridChars2[n] //actors
                 let numPointer = this.getGrid(num);
                 if(numPointer == undefined){
                 var points = new Grid(gridChars[i],gridChars2[n],i,n);
+                this.addGrid(points);
                 }
-                  this.addGrid(points);
-                  result += `<td id='${node}'  class='mist'></td>`;
+
+
+                  result += `<td id='${node}' name='mapdata'  class='grids'></td>`;
 
             }
               result += `</tr>`;
-          }
+          };
 
 
           result += ` ${this.name}`
@@ -334,7 +332,7 @@ class Graph{
           }else{
             grid.edges.push(this.graph[direction.down])
           //  console.log(direction.down)
-          }
+        };
           if(this.graph[direction.left] ==undefined){
             console.log(`undefined found left ${direction.let}`)
 
@@ -345,12 +343,13 @@ class Graph{
           if(this.graph[direction.right] ==undefined){
             console.log(`undefined found right ${direction.right}`)
 
-          }else{
+          }
+          else{
             grid.edges.push(this.graph[direction.right])
           //  console.log(direction.right)
-          }
+        };
 
-        }
+      };
         ///////////////<~~~~~~~~~~~~~Makes a grid ~~~~~~~~~~~~~~~~~~~~>
         /*
         0a0b0c0d0e0f0g0h0i0j
@@ -365,22 +364,57 @@ class Graph{
         9a9b9c9d9e9f9g9h9i9j
         */
 
-
+          this.html=result
           return result;
-  }
-  mapClick(){
+  };
+  mapClick(option){
     for (var i = 0; i < this.grids.length; i++) {
     let  grid = document.getElementById(this.grids[i].value)
         let end = this.grids[i].value;
         let start = commander.position;
         let graph= graphMap;
-        grid.onclick = () => bfs(graph,start,end);
+        switch(option){
+          case "travel":
+          grid.onclick = () => bfs(graph,start,end);
+          break;
+          case "mapInfo":
+          break;
+        }
+
 
 
 
     }
+  };
+
+  scanner(){
+    let roll= Math.random() *20 +1;
+    document.getElementById('terminal').innerHTML = `${graphMap.map()}`;
+    this.mapSpaceBodies();
+    this.mapClick('travel');
+  };
+  sectorScan(){
+
+  };
+  mapSpaceBodies(){
+
+  for (var asteroid in spaceBodies) {
+    if (spaceBodies.hasOwnProperty(asteroid)) {
+  console.log(spaceBodies.position)
+
+    }
+    let mapCord = document.getElementById(spaceBodies[asteroid].position);
+    console.log(spaceBodies[asteroid].position)
+    mapCord.style.color = 'red';
+    mapCord.innerHTML+=`<span class='parent'><span class='verticalcentered1'>${spaceIcons.asteroidIcon}</span></span> `;
+    console.log(mapCord,mapCord.innerHTML)
   }
-}
+
+    let comNode= document.getElementById(commander.position)
+    comNode.style.borderColor = "rgba(74, 246, 38, 1)";
+    comNode.innerHTML += `<span class=' ship'>${shipIcon}</span>`;
+  };
+};
 
 
 /*
@@ -454,8 +488,8 @@ console.log(distance);
 for(let i =0;i<distance.length;i++){
   setTimeout(function(){
     commander.position =distance[i]
-    scanner()
-    document.getElementById(distance[i]).style.backgroundColor = 'red';
+    graph.scanner()
+  //  document.getElementById(distance[i]).style.backgroundColor = 'red';
     //document.getElementById(distance[i]).innerHTML = shipIcon;
   }, i*1000);
 
@@ -464,7 +498,7 @@ for(let i =0;i<distance.length;i++){
 //reset the map when done  & set the ships position
 setTimeout(function(){
   commander.position =current.value;
-  scanner()
+  graph.scanner()
 
 
 }, distance.length*1000);
@@ -531,26 +565,14 @@ function cdnn(secs){
   commander.stats.fule -= 1
 }, 1000)};}
 ////end the cound down timer
-function scanner(){
-  let roll= Math.random() *20 +1;
-  let distance = 0;
-  let gridNum =0;
 
-  let result ='<table>';
-  let gridChars='ABCDEFGHIJ';
-  let charLength = gridChars.length;
-  let m =0;
-  let gridLength = 10;
-  document.getElementById('terminal').innerHTML = `${graphMap.map()}`;
-  mapAsteroids();
-  graphMap.mapClick();
-};
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
 //create a commander hero
 var commander = new Player("bob");
 var graphMap = new Graph;
 var asteroid1 = new Asteroid();
-asteroids.push(asteroid1)
+//asteroids.push(asteroid1)
 generator(4);
 //console.log(asteroid1.position,'apos')
  console.log(status,status[0])
@@ -596,7 +618,7 @@ Roll 20
  //////////<~~~~~~~~~~~~~~~~~~Ends Make Grid~~~~~~~~~~~~~~>
 let scannerButton= document.getElementById('scannerButton')
 scannerButton.addEventListener("click",function(){
-  scanner()
+  graphMap.scanner()
 });
 
 let bfsscan= document.getElementById('bfs')
@@ -605,4 +627,30 @@ bfsscan.addEventListener("click",function(){
   let start= commander.position;
   let end= asteroid1.position;
   bfs(graph,start,end) //pass start and End cord
+});
+let gridsToggle = document.getElementById('gridsToggle')
+gridsToggle.addEventListener("click",function(){
+
+  for (let grid in  graphMap.graph) {
+    if (graphMap.graph.hasOwnProperty(grid)) {
+      let gridpoint = document.getElementById(`${graphMap.graph[grid].value}`);
+      console.log(gridpoint,graphMap.graph[grid].value)
+      switch (graphMap.showGrids) {
+        case 'grids':
+      graphMap.showGrids = 'noGrids';
+      graphMap.map()
+          break;
+        case 'noGrids':
+        graphMap.showGrids = 'grids';
+        graphMap.map()
+
+          break;
+        default:
+
+      }
+
+    }
+  }
+
+
 });
