@@ -13,7 +13,7 @@ class Player {
     let mana = Math.floor(Math.random() * (20 - 12 + 1)) + 12; ;
 
 
-
+    this.icon='🚀';
    this.name = name;
    this.hp = hp;
    this.maxHp=hp;
@@ -130,18 +130,23 @@ class Asteroid {
     let randChar2=gridChars2[Math.round(Math.random()*9)];
     let randPos =randChar1+randChar2;
     this.position = randPos;
+    this.icon = '🌑';
+    this.scanned =false;
 
 
   }
   generate_Minerals(scanlv){
+
     let base_minerals= ['iron','Lithium','Aluminum','copper','zinc','nickel','tin'];
     let precious_metals=['gold','silver','platinum','Palladium'];
     let utility_metals=['titanium','uranium'];
-    let terminal = document.getElementById('terminal');
+
     let bscan =0;
     let pscan =0;
     let uscan =0;
-    terminal.innerHTML = `${this.name} <br>`;
+    // if (this.scanned ==true){
+    //   console.log('scanned')
+    // }else{
         if(scanlv<=1){//generate base metals
           bscan =5
         }
@@ -156,44 +161,53 @@ class Asteroid {
 
         for (let i = 0; i < bscan; i++) {
         let baseMinerals = base_minerals[Math.floor(Math.random()* base_minerals.length)];
-        let min = `${baseMinerals}`;
+        let mineral = `${baseMinerals}`;
 
-        if ( this.minerals[min] === undefined){
-          console.log(`creaing ${min} with value 0 `)
-          this.minerals[`${min}`]=0;
+        if ( this.minerals[mineral] === undefined){
+          console.log(`creaing ${mineral} with value 0 `)
+          this.minerals[`${mineral}`]=0;
         }
-        this.minerals[`${min}`]++
-        console.log(`min`,min)
+        this.minerals[`${mineral}`]++
+        console.log(`mineral`,mineral)
         console.log( this.minerals[`${baseMinerals}`])
         console.log('base',baseMinerals)
+        this.scanned=true;
       }
-//terminal.innerHTML = `<table id='t'> </table>`
-        let v = Object.values(this.minerals);////empty before the above loop runs
-        let k = Object.keys(this.minerals);
-        let table = document.createElement('table');
-        let row = document.createElement('tr')
-        row.innerHTML=`<td><strong>Mineral</strong></td><td><b>AMT</b></td>`
-        table.appendChild(row)
-        for(let i in k){
+    // }
 
-          let row = document.createElement('tr')
-          let cell = document.createElement('td')
-          let text = `<td> ${k[i]}</td><td>${v[i]}</td>`;
-          let tt= `${k[i]}`;
-         row.innerHTML=text;
-         table.appendChild(row);
+  }
+  ///end generate_Minerals
+  displayMinerals(){
+    let terminal = document.getElementById('terminal');
+   terminal.innerHTML = `${this.name} <br> <div id='minerals'>`;
+    let minerals = document.getElementById('minerals');
+    //terminal.innerHTML = `<table id='t'> </table>`
+            let v = Object.values(this.minerals);////empty before the above loop runs
+            let k = Object.keys(this.minerals);
+            let table = document.createElement('table');
+            let row = document.createElement('tr')
+            row.innerHTML=`<td><strong>Mineral</strong></td><td><b>AMT</b></td>`
+            table.appendChild(row)
+            for(let i in k){
 
-        }
-      ///  table.className = ``;
+              let row = document.createElement('tr')
+              let cell = document.createElement('td')
+              let text = `<td> ${k[i]}</td><td>${v[i]}</td>`;
+              let tt= `${k[i]}`;
+             row.innerHTML=text;
+             table.appendChild(row);
+
+            }
+          ///  table.className = ``;
 
 
 
-        terminal.appendChild( table);
+            minerals.appendChild( table);
 
-        console.log(k,v);///key and value of minerals
+            console.log(k,v);///key and value of minerals
 
-  }///end generate_Minerals
-  makeid(length) {
+  };
+    makeid(length) {
      let result           = '';
      let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
      let num ='0123456789';
@@ -218,7 +232,9 @@ function generator(n){
 
     let a = new Asteroid;
 
+
     spaceBodies[a.name]= a;
+
   }
 
 }
@@ -246,6 +262,7 @@ class Graph{
     this.start= null;
     this.end = null;
     this.showGrids='grids';
+    this.html='';
   }
   addGrid(g){
     ///grid into array
@@ -375,7 +392,9 @@ class Graph{
         let graph= graphMap;
         switch(option){
           case "travel":
-          grid.onclick = () => bfs(graph,start,end);
+
+          grid.onclick = () => bfs(graph,commander.position,end);
+
           break;
           case "mapInfo":
           break;
@@ -384,35 +403,66 @@ class Graph{
 
 
 
-    }
+    };
   };
 
   scanner(){
     let roll= Math.random() *20 +1;
-    document.getElementById('terminal').innerHTML = `${graphMap.map()}`;
+    graphMap.map();
+    document.getElementById('terminal').innerHTML = `${graphMap.html}`;
     this.mapSpaceBodies();
+
     this.mapClick('travel');
   };
-  sectorScan(){
+  sectorScan(object){
 
-  };
+    let html=`<div id='space'></div><div id='scanstroid'   > [ scan ]</div>`;
+    document.getElementById('terminal').innerHTML += `${html}`;
+
+
+      console.log(object.position)
+
+        console.log('derp?')
+        document.getElementById('space').innerHTML += `
+        ${object.icon} ${object.name}
+
+        `;
+document.getElementById('scanstroid').onclick =function(){object.generate_Minerals(1)
+object.displayMinerals();
+}
+
+
+
+
+//document.getElementById('scanstroid').style.onclick = spaceBodies[bodies].generate_Minerals()
+
+};
   mapSpaceBodies(){
-
+let terminal = document.getElementById('terminal');
   for (var asteroid in spaceBodies) {
+
     if (spaceBodies.hasOwnProperty(asteroid)) {
-  console.log(spaceBodies.position)
+
 
     }
     let mapCord = document.getElementById(spaceBodies[asteroid].position);
     console.log(spaceBodies[asteroid].position)
     mapCord.style.color = 'red';
-    mapCord.innerHTML+=`<span class='parent'><span class='verticalcentered1'>${spaceIcons.asteroidIcon}</span></span> `;
+    mapCord.innerHTML+=`<span class='parent'><span class='verticalcentered1'>${spaceBodies[asteroid].icon}</span></span> `;
     console.log(mapCord,mapCord.innerHTML)
+
+    if (spaceBodies[asteroid].position == commander.position) {
+
+this.sectorScan(spaceBodies[asteroid])
+
+    }
+
   }
 
     let comNode= document.getElementById(commander.position)
     comNode.style.borderColor = "rgba(74, 246, 38, 1)";
-    comNode.innerHTML += `<span class=' ship'>${shipIcon}</span>`;
+    comNode.innerHTML += `<span class=' ship'>${commander.icon}</span>`;
+
   };
 };
 
@@ -428,9 +478,13 @@ https://en.wikipedia.org/wiki/Breadth-first_search
 //start cord and end cord passed in
 function bfs(g,s,e){
   var graph = g;
+
+
   var start=  graph.setStart(s);
    var end =  graph.setEnd(e);
-    var queue =[];
+    let queue =[];
+
+
 //  console.log(start)
 //  console.log(end)
   queue.push(start)
@@ -496,12 +550,7 @@ for(let i =0;i<distance.length;i++){
 
 }
 //reset the map when done  & set the ships position
-setTimeout(function(){
-  commander.position =current.value;
-  graph.scanner()
 
-
-}, distance.length*1000);
 
 
 }
@@ -572,6 +621,7 @@ function cdnn(secs){
 var commander = new Player("bob");
 var graphMap = new Graph;
 var asteroid1 = new Asteroid();
+graphMap.map()
 //asteroids.push(asteroid1)
 generator(4);
 //console.log(asteroid1.position,'apos')
@@ -597,9 +647,6 @@ t.innerHTML= `${commander.statsDisplay()}`;
 // create asteroid and generate minerals for it
 
 
- //let scannerButton = document.getElementById('scannerButton');
-//scannerButton.addEventListener('click',scanner());
-
 
 /*scan for asteroid ->
 /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
@@ -623,34 +670,14 @@ scannerButton.addEventListener("click",function(){
 
 let bfsscan= document.getElementById('bfs')
 bfsscan.addEventListener("click",function(){
-  let graph = graphMap;
-  let start= commander.position;
-  let end= asteroid1.position;
-  bfs(graph,start,end) //pass start and End cord
+
 });
 let gridsToggle = document.getElementById('gridsToggle')
 gridsToggle.addEventListener("click",function(){
 
-  for (let grid in  graphMap.graph) {
-    if (graphMap.graph.hasOwnProperty(grid)) {
-      let gridpoint = document.getElementById(`${graphMap.graph[grid].value}`);
-      console.log(gridpoint,graphMap.graph[grid].value)
-      switch (graphMap.showGrids) {
-        case 'grids':
-      graphMap.showGrids = 'noGrids';
-      graphMap.map()
-          break;
-        case 'noGrids':
-        graphMap.showGrids = 'grids';
-        graphMap.map()
-
-          break;
-        default:
-
-      }
-
-    }
-  }
-
 
 });
+// var scanstroid= document.getElementById('scanstroid');
+// scanstroid.addEventListener("click",function(){
+// spaceBodies[bodies].generate_Minerals()
+// });
