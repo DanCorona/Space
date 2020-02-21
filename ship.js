@@ -1,9 +1,11 @@
 
+
 var status = ["Idling","Traveling","Scanning","Minning"];
 var gridChars='ABCDEFGHIJ';
 var gridChars2='0123456789';
 var spaceBodies={};
 var spaceIcons={shipIcon:"🚀",asteroidIcon: '🌑',}
+var timeHTML =``;
 //emojis are cool 👨‍💻
 const shipIcon = "🚀";
 const asteroidIcon= '🌑';
@@ -78,16 +80,6 @@ class Player {
   html += `
   </td><td>
 <br>
-  <table >
-
-  <tr><td>Name</td><td> damage</td> <td> cost</td></tr>
-  ${this.getWeapons()}
-  </table>
-  </td>
-  </table>
-  commanderattack w:${this.attackWeapon()}
-  <br>
-  commanderattack m :
   `;
 
   return html;
@@ -132,7 +124,7 @@ class Asteroid {
     this.position = randPos;
     this.icon = '🌑';
     this.scanned =false;
-
+    this.spaceBodieType='Asteroid';
 
   }
   generate_Minerals(scanlv){
@@ -177,36 +169,11 @@ class Asteroid {
 
   }
   ///end generate_Minerals
-  displayMinerals(){
-    let terminal = document.getElementById('terminal');
-   terminal.innerHTML = `${this.name} <br> <div id='minerals'>`;
-    let minerals = document.getElementById('minerals');
-    //terminal.innerHTML = `<table id='t'> </table>`
-            let v = Object.values(this.minerals);////empty before the above loop runs
-            let k = Object.keys(this.minerals);
-            let table = document.createElement('table');
-            let row = document.createElement('tr')
-            row.innerHTML=`<td><strong>Mineral</strong></td><td><b>AMT</b></td>`
-            table.appendChild(row)
-            for(let i in k){
-
-              let row = document.createElement('tr')
-              let cell = document.createElement('td')
-              let text = `<td> ${k[i]}</td><td>${v[i]}</td>`;
-              let tt= `${k[i]}`;
-             row.innerHTML=text;
-             table.appendChild(row);
-
-            }
-          ///  table.className = ``;
-
-
-
-            minerals.appendChild( table);
-
-            console.log(k,v);///key and value of minerals
-
+  mineMinerals(){
+cdnn(60,"mining")
+document.getElementById("time").innerHTML = timeHTML
   };
+
     makeid(length) {
      let result           = '';
      let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -232,14 +199,26 @@ function generator(n){
 
     let a = new Asteroid;
 
+    for (let asteroid in spaceBodies){
+      if (spaceBodies[asteroid].position == a.position){
+        console.log('%cbad grav mann111','background: #222; color: #bada55')
+        a = new Asteroid;
+      }
 
-    spaceBodies[a.name]= a;
+    }
+spaceBodies[a.name]= a;
+
 
   }
 
 }
 ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//
+/*
+graph loop
+var graphMap = new Graph; -> graphMap.makeMap() -> graphMap.displayMap()
+
+graphMap.displayMap() -> this.mapSpaceBodies(); ||-> this.mapClick('travel');
+*/
 class Grid{
   constructor(aValue,bValue,aIndex,bIndex){
     this.value=aValue+bValue;
@@ -262,7 +241,7 @@ class Graph{
     this.start= null;
     this.end = null;
     this.showGrids='grids';
-    this.html='';
+    this.graphHTML='';
   }
   addGrid(g){
     ///grid into array
@@ -284,8 +263,8 @@ class Graph{
     return this.end;
   }
 
-  map(){this.grids =[];
-          let result =`<table class='mist' id='mapTable'>`;
+  makeMap(){this.grids =[];
+          let result =`<table class='mist sd ' id='mapTable'>`;
           let charLength = gridChars.length;
           let m =0;
           var styleClass=' styleClass';
@@ -316,7 +295,12 @@ class Graph{
           };
 
 
-          result += ` ${this.name}`
+          result += `</table>
+          <br>
+          | <span id='mapBtn'>[map]</span> |
+
+          | <span id= 'scanstroid'>[scan]</span> |
+          `
         //  console.log(gridChars[(this.grids[0].aIndex +1)],`:aindex`);
         //add edges for the grids
           for(let j = 0;j<this.grids.length;j++){
@@ -336,7 +320,7 @@ class Graph{
 
           }
           if(this.graph[direction.up] ==undefined){
-            console.log(`undefined found up ${direction.up}`)
+            //console.log(`undefined found up ${direction.up}`)
 
 
           }else{
@@ -344,21 +328,21 @@ class Graph{
           //  console.log(direction.up,)
           }
           if(this.graph[direction.down] ==undefined){
-            console.log(`undefined found down ${direction.down}`)
+          //  console.log(`undefined found down ${direction.down}`)
 
           }else{
             grid.edges.push(this.graph[direction.down])
           //  console.log(direction.down)
         };
           if(this.graph[direction.left] ==undefined){
-            console.log(`undefined found left ${direction.let}`)
+          //  console.log(`undefined found left ${direction.let}`)
 
           }else{
             grid.edges.push(this.graph[direction.left])
           //  console.log(direction.left)
           }
           if(this.graph[direction.right] ==undefined){
-            console.log(`undefined found right ${direction.right}`)
+          //  console.log(`undefined found right ${direction.right}`)
 
           }
           else{
@@ -381,9 +365,12 @@ class Graph{
         9a9b9c9d9e9f9g9h9i9j
         */
 
-          this.html=result
+          this.graphHTML=result
           return result;
   };
+  mapcontrols(){
+    let controlsHTML = document.get
+  }
   mapClick(option){
     for (var i = 0; i < this.grids.length; i++) {
     let  grid = document.getElementById(this.grids[i].value)
@@ -406,63 +393,125 @@ class Graph{
     };
   };
 
-  scanner(){
+  displayMap(){
     let roll= Math.random() *20 +1;
-    graphMap.map();
-    document.getElementById('terminal').innerHTML = `${graphMap.html}`;
+    graphMap.makeMap();
+
+    document.getElementById('terminal').innerHTML = `${graphMap.graphHTML }`;
     this.mapSpaceBodies();
 
     this.mapClick('travel');
   };
+
   sectorScan(object){
 
-    let html=`<div id='space'></div><div id='scanstroid'   > [ scan ]</div>`;
+    let html=`<div id='space'></div>`;
     document.getElementById('terminal').innerHTML += `${html}`;
 
 
       console.log(object.position)
 
         console.log('derp?')
-        document.getElementById('space').innerHTML += `
-        ${object.icon} ${object.name}
+        let spaceDsp=document.getElementById('space')
+        spaceDsp.innerHTML = `
+        [${object.icon} ${object.name}] <span id='scanstroid'> [ scan ] </span>
 
         `;
-document.getElementById('scanstroid').onclick =function(){object.generate_Minerals(1)
-object.displayMinerals();
-}
 
+
+
+let scanstroid= document.getElementById('scanstroid')
+scanstroid.addEventListener("click",function(){
+  if (!object.scanned){
+    object.generate_Minerals(1)
+  }
+
+graphMap.displayMinerals(object);
+object.scanned = true;
+});
 
 
 
 //document.getElementById('scanstroid').style.onclick = spaceBodies[bodies].generate_Minerals()
 
 };
+displayMinerals(spaceObject){
+
+  let terminal = document.getElementById('terminal');
+ terminal.innerHTML = `<center>${spaceObject.name} <br>
+ <div class='.grid-container' >
+
+ <div id='minerals'></div>
+ <div id='time'>  </div>
+
+ <div class='terminalMenu'>
+ <span id='mapBtn' onclick='graphMap.displayMap()'>[Map]</span>||
+ <span id='mineBtn'onclick=''>[Mine]</span>
+ </div>
+ </div>
+
+
+ `;
+  let minerals = document.getElementById('minerals');
+  //terminal.innerHTML = `<table id='t'> </table>`
+          let v = Object.values(spaceObject.minerals);////empty before the above loop runs
+          let k = Object.keys(spaceObject.minerals);
+          let table = document.createElement('table');
+          let row = document.createElement('tr')
+          row.innerHTML=`<td><strong>Mineral</strong></td><td><b>AMT</b></td>`
+          table.appendChild(row)
+          for(let i in k){
+
+            let row = document.createElement('tr')
+            let cell = document.createElement('td')
+            let text = `<td> ${k[i]}</td><td>${v[i]}</td>`;
+            let tt= `${k[i]}`;
+           row.innerHTML=text;
+           table.appendChild(row);
+
+          } ;
+        ///  table.className = ``;
+
+
+
+          minerals.appendChild( table);
+      let     mineBTN=document.getElementById('mineBtn');
+          mineBTN.onclick = function (){spaceObject.mineMinerals()}
+          console.log(k,v);///key and value of minerals
+
+};
   mapSpaceBodies(){
-let terminal = document.getElementById('terminal');
-  for (var asteroid in spaceBodies) {
+    let terminal = document.getElementById('terminal');
+    //Display space bodie if it is within the edges of the ship
+    for(var grid in graphMap.graph[commander.position].edges){
+    //  console.log(`${graphMap.graph[commander.position].value},edge${graphMap.graph[commander.position].edges[grid].value}`)
+      for (var spaceObject in spaceBodies) {
+        if(spaceBodies[spaceObject]){}
+        if (spaceBodies[spaceObject].scanned == true) {
+          let mapCord = document.getElementById(spaceBodies[spaceObject].position);
+        //  console.log(spaceBodies[spaceObject].position)
+          mapCord.style.color = 'red';
+          mapCord.innerHTML=`<span class='parent'><span class='verticalcentered1'>${spaceBodies[spaceObject].icon}</span></span> `;
 
-    if (spaceBodies.hasOwnProperty(asteroid)) {
+        }
+        if (spaceBodies[spaceObject].position == graphMap.graph[commander.position].edges[grid].value ||spaceBodies[spaceObject].position == graphMap.graph[commander.position].value) {
+          this.sectorScan(spaceBodies[spaceObject])
+          let mapCord = document.getElementById(spaceBodies[spaceObject].position);
+        //  console.log(spaceBodies[spaceObject].position)
+          mapCord.style.color = 'red';
+          mapCord.innerHTML=`<span class='parent'><span class='verticalcentered1'>${spaceBodies[spaceObject].icon}</span></span> `;
 
+        }
 
+      }
     }
-    let mapCord = document.getElementById(spaceBodies[asteroid].position);
-    console.log(spaceBodies[asteroid].position)
-    mapCord.style.color = 'red';
-    mapCord.innerHTML+=`<span class='parent'><span class='verticalcentered1'>${spaceBodies[asteroid].icon}</span></span> `;
-    console.log(mapCord,mapCord.innerHTML)
 
-    if (spaceBodies[asteroid].position == commander.position) {
 
-this.sectorScan(spaceBodies[asteroid])
 
-    }
-
-  }
 
     let comNode= document.getElementById(commander.position)
     comNode.style.borderColor = "rgba(74, 246, 38, 1)";
     comNode.innerHTML += `<span class=' ship'>${commander.icon}</span>`;
-
   };
 };
 
@@ -542,10 +591,10 @@ console.log(distance);
 for(let i =0;i<distance.length;i++){
   setTimeout(function(){
     commander.position =distance[i]
-    graph.scanner()
+    graph.displayMap()
   //  document.getElementById(distance[i]).style.backgroundColor = 'red';
     //document.getElementById(distance[i]).innerHTML = shipIcon;
-  }, i*1000);
+  }, i*50);
 
 
 }
@@ -558,7 +607,8 @@ for(let i =0;i<distance.length;i++){
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /////countdown functions
 
-function cdnn(secs){
+function cdnn(secs,option){
+  let condition =option;
   let now = new Date();
   let timeNow = now.getTime()/1000;
   let newTime = (timeNow + secs ); //add 1 minute
@@ -572,6 +622,18 @@ function cdnn(secs){
 
   commander.status = status[1];///['Idling',`Traveling`,"Scanning","Minning"];
   let x = setInterval(function() {
+    switch (option) {
+      case "mining":
+        var condi= ` commander power ${Math.round(commander.stats.power)}`
+        var stat =commander.stats.power
+        break;
+        case "tavel":
+          var condi= ` commander fule ${Math.round(commander.stats.fule)}`
+          commander.stats.fule
+          break;
+      default:
+
+    }
     console.log(timeNow)
     console.log(newTime)
     console.log(now)
@@ -583,10 +645,10 @@ function cdnn(secs){
     let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     let seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    document.getElementById("options").innerHTML = `
+    timeHTML = `
       <center>
       <table>
-      <th align='center'>Travel Time</th>
+      <th id="countInfo" align='center'>${option}</th>
       <tr><td>
       <table>
       <tr><td>days</td><td>hours</td><td>minutes</td><td>seconds</td></tr>
@@ -594,25 +656,56 @@ function cdnn(secs){
       </ table>
         </td></tr>
         </table>
-      <br> commander fule ${Math.round(commander.stats.fule)}
+      <br> ${condi}
+
     `;
 
+    var  timeEle = document.getElementById('time');
+    if(timeEle == null){
+      timeEle = document.createElement("time");
+      timeEle.innerHTML = timeHTML
+    }else {
+      timeEle.innerHTML = timeHTML;
+    }
     document.getElementById("info").innerHTML = commander.statsDisplay();
     // If the count down is finished, write some text
-    if (nowt > newTimeDate) {
+    if (nowt >= newTimeDate) {
       commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
       clearInterval(x);
-      document.getElementById("options").innerHTML = "arived";
+      switch (option) {
+        case 'travel':
+          document.getElementById("countInfo").innerHTML = "Arived";
+          break;
+          case 'mining':
+            document.getElementById("countInfo").innerHTML = "Mining Done";
+            break;
+        default:
+
+      }
+
       document.getElementById("info").innerHTML = commander.statsDisplay();
     }
-    if (commander.stats.fule == 0) {
+    if (stat <= 0) {
       commander.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
       clearInterval(x);
-      document.getElementById("options").innerHTML = "Ran out of fule";
+
+      switch (option) {
+        case 'travel':
+          document.getElementById("countInfo").innerHTML = "Ran out of fule";
+          break;
+          case 'mining':
+            document.getElementById("countInfo").innerHTML = "No POWER!";;
+            break;
+        default:
+
+      }
+
       document.getElementById("info").innerHTML = commander.statsDisplay();
     }
-  commander.stats.fule -= 1
-}, 1000)};}
+  commander.stats.power -= .5
+  }, 1000)
+  };
+}
 ////end the cound down timer
 
 
@@ -621,7 +714,7 @@ function cdnn(secs){
 var commander = new Player("bob");
 var graphMap = new Graph;
 var asteroid1 = new Asteroid();
-graphMap.map()
+graphMap.makeMap()
 //asteroids.push(asteroid1)
 generator(4);
 //console.log(asteroid1.position,'apos')
@@ -648,7 +741,7 @@ t.innerHTML= `${commander.statsDisplay()}`;
 
 
 
-/*scan for asteroid ->
+/*scan for spaceObject ->
 /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
 /~~~~~~~~~~~~~~Map making~~~~~~~~~~~~~~~~~~~~~~~~~/
 /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
@@ -665,7 +758,7 @@ Roll 20
  //////////<~~~~~~~~~~~~~~~~~~Ends Make Grid~~~~~~~~~~~~~~>
 let scannerButton= document.getElementById('scannerButton')
 scannerButton.addEventListener("click",function(){
-  graphMap.scanner()
+  graphMap.displayMap()
 });
 
 let bfsscan= document.getElementById('bfs')

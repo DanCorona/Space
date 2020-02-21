@@ -12,7 +12,29 @@
     border-radius:6px;
     -moz-border-radius:6px;
 }
+.grid-container {
+  display: grid;
 
+  grid-template-rows: 80px 200px;
+  grid-gap: 10px;
+  background-color: #2196F3;
+  padding: 10px;
+}
+
+.terminalContent  {
+  height: 300;
+  width: 400;
+}
+.terminalMenu{
+  top: +10px;
+  width:auto;
+  border-style:inset;
+  border-color:rgba(5,1,0,0.1);
+  position: relative;
+  display: block;
+  overflow: auto;
+  vertical-align: bottom;
+}
 .parent {
 position:relative;
 zoom:0;/*has layout for ie*/
@@ -102,7 +124,7 @@ td.grids{
   height:32px;
   overflow: hidden;
 
-  border: 1px solid red;
+  border: 1px solid rgba(18,236,55,.5);
 
 
 }
