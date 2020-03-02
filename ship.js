@@ -50,7 +50,7 @@ class Button{
           cdnn(5,"mining",graph,sO)
           document.getElementById("time").innerHTML = timeHTML
           document.getElementById('terminalMenu').innerHTML = `
-          |${menu_Buttons.menuBtn.html}|
+          |${buttons.menuBtn.html}|
           `
           break;
         case "scanBtn":
@@ -199,12 +199,12 @@ class Player {
         </div>
 
         <div class='terminalMenu' id='terminalMenu'>
-      ${menu_Buttons.menuBtn.html}||  ${menu_Buttons.mapBtn.html}||
+      ${buttons.menuBtn.html}||  ${buttons.mapBtn.html}||
         </div>
 
         `;
-        menu_Buttons.mapBtn.activateBtn(graph)
-        menu_Buttons.menuBtn.activateBtn(graph)
+        buttons.mapBtn.activateBtn(graph)
+        buttons.menuBtn.activateBtn(graph)
       //  activatebtnBtn('mapBtn',this)
 
 
@@ -246,7 +246,7 @@ break;
     }
 
     //for(items in this.cargo)
-    menu_Buttons.menuBtn.activateBtn(graph)
+    buttons.menuBtn.activateBtn(graph)
   };
   //////////////////main weapon attack
   attackWeapon(){
@@ -393,19 +393,19 @@ class Asteroid {
 
 };//end asteroid class
 
-function generator(n){
-  for (var i = 0; i < n; i++) {
+function spaceBodiesGenerator(aNum,graph){
+  for (var i = 0; i < aNum; i++) {
 
     let a = new Asteroid;
 
-    for (let asteroid in spaceBodies){
-      if (spaceBodies[asteroid].position == a.position){
+    for (let asteroid in graph.spaceBodies){
+      if (graph.spaceBodies[asteroid].position == a.position){
         console.log('%cbad grav mann111','background: #222; color: #bada55')
         a = new Asteroid;
       }
 
     }
-    spaceBodies[a.name]= a;
+    graph.spaceBodies[a.name]= a;
 
 
   }
@@ -440,8 +440,9 @@ class Graph{
     this.graph={};
     this.start= null;
     this.end = null;
-    this.showGrids='grids';
+    this.showGrids='noGrids';
     this.graphHTML='';
+    this.spaceBodies={};
   }
   addGrid(g){
     ///grid into array
@@ -464,7 +465,7 @@ class Graph{
   }
 
   makeMap(){this.grids =[];
-    let result =`<center>${this.index}</center>
+    let result =`<center>Sector:${this.index}</center>
     <table class='mist sd ' id='mapTable'>`;
     let charLength = gridChars.length;
     let m =0;
@@ -565,29 +566,27 @@ class Graph{
     8a8b8c8d8e8f8g8h8i8j
     9a9b9c9d9e9f9g9h9i9j
     */
-
+    result+=`${buttons.menuBtn.html}`
     this.graphHTML=result
+
     return result;
+
   };
   displayMenu(){
-  var  buttons= [
-      menu_Buttons.mapBtn,
-      menu_Buttons.cargoBtn,
-      menu_Buttons.saveBtn,
-      menu_Buttons.loadBtn,]
-      var buttonsList=''
 
-const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
 
   document.getElementById('terminal').innerHTML = `
-    ${menu_Buttons.mapBtn.html}
-    ${menu_Buttons.cargoBtn.html}
-    ${menu_Buttons.saveBtn.html}
-    ${menu_Buttons.loadBtn.html}`;
-  menu_Buttons.mapBtn.activateBtn(this)
-  menu_Buttons.cargoBtn.activateBtn(this)
-  menu_Buttons.saveBtn.activateBtn(this)
-  menu_Buttons.loadBtn.activateBtn(this)
+  <center>
+    ${buttons.mapBtn.html}</br>
+    ${buttons.cargoBtn.html}</br>
+    ${buttons.saveBtn.html}</br>
+    ${buttons.loadBtn.html}
+    </center>
+    `;
+  buttons.mapBtn.activateBtn(this)
+  buttons.cargoBtn.activateBtn(this)
+  buttons.saveBtn.activateBtn(this)
+  buttons.loadBtn.activateBtn(this)
   }
   mapClick(option){
     for (var i = 0; i < this.grids.length; i++) {
@@ -616,6 +615,7 @@ const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
     this.makeMap(this);
 
     document.getElementById('terminal').innerHTML = `${this.graphHTML }`;
+    buttons.menuBtn.activateBtn(this,);
     this.mapSpaceBodies();
 
     this.mapClick('travel');
@@ -632,10 +632,10 @@ const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
     //  console.log('derp?')
     let spaceDsp=document.getElementById('space')
     spaceDsp.innerHTML = `
-    [${object.icon} ${object.name}] ${menu_Buttons.scanBtn.html}
+    [${object.icon} ${object.name}] ${buttons.scanBtn.html}
 
     `;
-    menu_Buttons.scanBtn.activateBtn(this,object)
+    buttons.scanBtn.activateBtn(this,object)
 
 
     // let scanstroid= document.getElementById('scanstroid')
@@ -669,14 +669,14 @@ const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
     <div class='sd' id='time' style=display:inline-block;
     >  </div>
     <div class='terminalMenu' id='terminalMenu'>
-  ${menu_Buttons.menuBtn.html}||  ${menu_Buttons.mapBtn.html}||${menu_Buttons.mineBtn.html}
+  ${buttons.menuBtn.html}||  ${buttons.mapBtn.html}||${buttons.mineBtn.html}
 
     </div>
 
     `;
-    menu_Buttons.mapBtn.activateBtn(this,sO)
-    menu_Buttons.mineBtn.activateBtn(this,sO)
-    menu_Buttons.menuBtn.activateBtn(this,sO)
+    buttons.mapBtn.activateBtn(this,sO)
+    buttons.mineBtn.activateBtn(this,sO)
+    buttons.menuBtn.activateBtn(this,sO)
   //  activatebtnBtn('mapBtn',this)
 
 
@@ -718,10 +718,10 @@ const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
       row.innerHTML=`<td>No Minerals Found!</td>`
       table.appendChild(row)
       document.getElementById('terminalMenu').innerHTML = `
-      ${menu_Buttons.mapBtn.html}|${menu_Buttons.menuBtn.html}
+      ${buttons.mapBtn.html}|${buttons.menuBtn.html}
       `
-      menu_Buttons.mapBtn.activateBtn(this,);
-      menu_Buttons.menuBtn.activateBtn(this,);
+      buttons.mapBtn.activateBtn(this,);
+      buttons.menuBtn.activateBtn(this,);
       break;
       default:
     }
@@ -733,23 +733,23 @@ const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
   mapSpaceBodies(){
     let terminal = document.getElementById('terminal');
     //Display space bodie if it is within the edges of the ship
-    for(var grid in graphMap.graph[ship.position].edges){
+    for(var grid in this.graph[ship.position].edges){
       //  console.log(`${graphMap.graph[ship.position].value},edge${graphMap.graph[ship.position].edges[grid].value}`)
-      for (var spaceObject in spaceBodies) {
-        if(spaceBodies[spaceObject]){}
-        if (spaceBodies[spaceObject].scanned == true) {
-          let mapCord = document.getElementById(spaceBodies[spaceObject].position);
+      for (var spaceObject in this.spaceBodies) {
+        if(this.spaceBodies[spaceObject]){}
+        if (this.spaceBodies[spaceObject].scanned == true) {
+          let mapCord = document.getElementById(this.spaceBodies[spaceObject].position);
           //  console.log(spaceBodies[spaceObject].position)
           mapCord.style.color = 'red';
-          mapCord.innerHTML=`<span class='parent'><span class='verticalcentered1'>${spaceBodies[spaceObject].icon}</span></span> `;
+          mapCord.innerHTML=`<span class='parent'><span class='verticalcentered1'>${this.spaceBodies[spaceObject].icon}</span></span> `;
 
         }
-        if (spaceBodies[spaceObject].position == graphMap.graph[ship.position].edges[grid].value ||spaceBodies[spaceObject].position == graphMap.graph[ship.position].value) {
-          this.sectorScan(spaceBodies[spaceObject])
-          let mapCord = document.getElementById(spaceBodies[spaceObject].position);
+        if (this.spaceBodies[spaceObject].position == this.graph[ship.position].edges[grid].value ||this.spaceBodies[spaceObject].position == this.graph[ship.position].value) {
+          this.sectorScan(this.spaceBodies[spaceObject])
+          let mapCord = document.getElementById(this.spaceBodies[spaceObject].position);
           //  console.log(spaceBodies[spaceObject].position)
           mapCord.style.color = 'red';
-          mapCord.innerHTML=`<span class='parent'><span class='verticalcentered1'>${spaceBodies[spaceObject].icon}</span></span> `;
+          mapCord.innerHTML=`<span class='parent'><span class='verticalcentered1'>${this.spaceBodies[spaceObject].icon}</span></span> `;
 
         }
 
@@ -762,6 +762,7 @@ const map1 = buttons.map(x => buttonsList = `${x.html}<br>`);
     let comNode= document.getElementById(ship.position)
     comNode.style.borderColor = "rgba(74, 246, 38, 1)";
     comNode.innerHTML += `<span class=' ship'>${ship.icon}</span>`;
+    buttons.menuBtn.activateBtn(this)
   };
 };
 
@@ -779,8 +780,8 @@ function bfs(g,s,e){
   var graph = g;
 
 
-  var start=  graph.setStart(s);
-  var end =  graph.setEnd(e);
+  var start=  g.setStart(s);
+  var end =  g.setEnd(e);
   let queue =[];
 
 
@@ -792,7 +793,7 @@ function bfs(g,s,e){
 
   while (queue.length>0) {
     var current =queue.shift()
-    console.log(current.value);
+console.log(current.value);
 
 
     if (current== end) {
@@ -841,7 +842,7 @@ function bfs(g,s,e){
   for(let i =0;i<distance.length;i++){
     setTimeout(function(){
       ship.position =distance[i]
-      graph.displayMap()
+      g.displayMap()
       //  document.getElementById(distance[i]).style.backgroundColor = 'red';
       //document.getElementById(distance[i]).innerHTML = shipIcon;
     }, i*50);
@@ -971,28 +972,28 @@ function cdnn(secs,option,graph,space_object){
     };
   }
   ////end the cound down timer
-  var menu_Buttons={};
-  var menu_option={menuBtn:"Menu",mapBtn:"Map",mineBtn:"Mine",cargoBtn:"Cargo",scanBtn:"Scan",saveBtn:"Save",loadBtn:"Load",}
+  var buttons={};
+  var menu_option={menuBtn:"📃:Menu",mapBtn:"🗺️:Map",mineBtn:"⛏️:Mine",cargoBtn:"📦:Cargo",scanBtn:"📡:Scan",saveBtn:"Save",loadBtn:"Load",}
 
 function makeMenu(graph){
   for(let k in menu_option){
     console.log(`${k}${menu_option[k]}`)
     let btn= new Button(menu_option[k],k,graph)
-    menu_Buttons[k] = btn;
+    buttons[k] = btn;
   }
 
 }
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
   //create a ship hero
   var ship = new Player("bob");
-  var graphMap = new Graph;
-  var asteroid1 = new Asteroid();
+  //var graphMap = new Graph;
+//var asteroid1 = new Asteroid();
 
-  let mapbtn = new Button('[Map]','mapBtn',graphMap)
-  makeMenu(graphMap)
-  graphMap.makeMap()
+  //let mapbtn = new Button('[Map]','mapBtn',graphMap)
+  //makeMenu(graphMap)
+  //graphMap.makeMap()
   //asteroids.push(asteroid1)
-  generator(4);
+//  spaceBodiesGenerator(4,graphMap);
   //console.log(asteroid1.position,'apos')
   console.log(status,status[0])
   ship.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
@@ -1034,7 +1035,17 @@ function makeMenu(graph){
   //////////<~~~~~~~~~~~~~~~~~~Ends Make Grid~~~~~~~~~~~~~~>
   let scannerButton= document.getElementById('scannerButton')
   scannerButton.addEventListener("click",function(){
-    graphMap.displayMap()
+    //graphMap.displayMap()
+
+    var gm = new Graph;
+    //var asteroid1 = new Asteroid();
+
+    let mapbtn = new Button('[Map]','mapBtn',gm)
+    makeMenu(gm)
+    gm.makeMap()
+    //asteroids.push(asteroid1)
+    spaceBodiesGenerator(4,gm);
+    gm.displayMap();
   });
 
   let bfsscan= document.getElementById('bfs')
