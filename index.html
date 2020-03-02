@@ -12,11 +12,27 @@
     border-radius:6px;
     -moz-border-radius:6px;
 }
-.grid-container {
-  display: grid;
+.menu_button_class:active {
+  background: rgba(74, 246, 38, .5);
+}
+.menu_button_class{
+  background-color: Transparent;
+  text-align: center;
+  border-right: ridge 3px rgba(74, 246, 38, 1);
+  border-left: outset 3px rgba(74, 246, 38, 1);
+  border-top:none;
+  border-bottom: none;
 
-  grid-template-rows: 80px 200px;
-  grid-gap: 10px;
+  position:static;
+  border-radius:5px;
+  margin:auto;
+  font-size: 16px;
+  color:rgba(74, 246, 38, 1);
+}
+.grid-container {
+  display: block;
+height:200px;
+
   background-color: #2196F3;
   padding: 10px;
 }
@@ -26,7 +42,7 @@
   width: 400;
 }
 .terminalMenu{
-  top: +10px;
+
   width:auto;
   border-style:inset;
   border-color:rgba(5,1,0,0.1);
@@ -317,12 +333,15 @@ td.noGrids{
 <body>
 
   <div class="sd flicker terminal" id='terminal'>
+
   </div>
   <div class="info sd flicker"id='info'>
 
   </div>
+  <div class="info sd flicker"id='buttons'>
 
-  <div class=""id='controls'>
+  </div>
+  <div class="info sd"id='controls'>
 <button>show stats
   <button id='scannerButton'>scan for asteroid
     <button id='invintory'>Inivintory
