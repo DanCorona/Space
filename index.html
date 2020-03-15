@@ -1,16 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <title>game</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>game</title>
+
   <link rel="stylesheet" type="text/css" title="Cool stylesheet" href="style.css">
   <style media="screen">
+  .blinking{
+    animation:blinkingText .5s infinite;
+}
+@keyframes blinkingText{
+    0%{     color: #000;    }
+    49%{    color: #000; }
+    60%{    color: transparent; }
+    99%{    color:transparent;  }
+    100%{   color: #000;    }
+}
   table {
     border-collapse:separate;
     border:solid black 1px;
     border-radius:6px;
     -moz-border-radius:6px;
+}
+
+div.trade-window{
+  height:300px;
+  display:block;
 }
 .menu_button_class:active {
   background: rgba(74, 246, 38, .5);
@@ -37,9 +53,9 @@ height:200px;
   padding: 10px;
 }
 
-.terminalContent  {
-  height: 300;
-  width: 400;
+div.terminalContent  {
+  height:300px;
+  display:block;
 }
 .terminalMenu{
 
@@ -60,15 +76,32 @@ position:absolute;
 top:50%;
 height:20px;
 margin-top:-10px;/*half the height*/
+animation:spin 4s linear infinite;
 }
-.verticalcentered1 {z-index:0;}
+.spin {
+  top: 50%;
+  position:absolute;
+  height:16px;
+  margin-top:-10px;/*half the height*/
+  animation:spin 5s linear infinite;
+}
+.spin{
+  z-index: 0;
+}
+
+
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+.verticalcentered1 {z-index:1;}
 .verticalcentered2 {z-index:2;}
 .asteroid{
   z-index: 0;
 
 }
 .ship{
-  z-index: 2;
+  z-index: 10;
   position: absolute;
   margin-top:-10px;
 
@@ -83,7 +116,7 @@ td:first-child, th:first-child {
 }
 
     .info{background-color: rgba(0, 0, 0, 0.3);
-width:400px;
+width:380px;
 border-style:inset;
 border-color:rgba(5,1,0,0.5);
 position: relative;
@@ -94,8 +127,8 @@ overflow: auto;
 
 
   background-color: rgba(0, 0, 0, 0.8);
-      width:400px;
-      height: 500px;
+      width:380px;
+      height: 450px;
       border-style:inset;
       border-color:rgba(5,1,0,0.5);
       color:rgba(74, 246, 38, 1);
@@ -123,8 +156,8 @@ overflow: hidden;
 }
 table.mist{
 position:static;
-  width : 400px;
-  height:400px;
+  width : 380px;
+  height:200px;
   border: 0px solid red;
   background-image: url("star.png");
 
@@ -132,13 +165,13 @@ position:static;
 }
 
 td.grids{
-  position:static;
+
   border-radius:6px;
-  margin:auto;
+
   cursor: pointer;
   width : 32px;
   height:32px;
-  overflow: hidden;
+
 
   border: 1px solid rgba(18,236,55,.5);
 
@@ -343,13 +376,13 @@ td.noGrids{
   </div>
   <div class="info sd"id='controls'>
 <button>show stats
-  <button id='scannerButton'>Generate Map
+  <button id='startGameButton'>start Game
     <button id='invintory'>Inivintory
       <button id='bfs'>bfs scann
         <button id='gridsToggle'>toggleGrids
 
   </div>
-  <div id="root"></div>
+  <div id="root">1</div>
   <script src="ship.js" type="text/javascript"></script>
 </body>
 </html>
