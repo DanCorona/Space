@@ -1,6 +1,4 @@
-terminal
-
-
+//
 var terminal = document.getElementById('terminal');
 var gridChars='ABCDEFGHIJ';
 let status = ['Idling','mining','traveling',]
@@ -10,13 +8,13 @@ var spaceIcons={shipIcon:"🚀",asteroidIcon: '🌑',}
 var timeHTML =``;
 const shipIcon = "🚀";
 const asteroidIcon= '🌑';
-var ship= shipIcon;
+var comNet
 var currentMap ;
 var gameMap;
 var buttons={};
 var basePrice=5;
 var utilPrice=10;
-var menu_option={menuBtn:"📃:Menu",mapBtn:"🗺️:Map",mineBtn:"⛏️:Mine",cargoBtn:"📦:Cargo",scanBtn:"📡:Scan",saveBtn:"Save",loadBtn:"Load",buyMenuBtn:"Buy",sellMenuBtn:"Sell",repairBtn:"Repair",rechargeBtn:"Recharge"}
+var menu_option={menuBtn:"📃:Menu",mapBtn:"🗺️:Map",mineBtn:"⛏️:Mine",cargoBtn:"📦:Cargo",scanBtn:"📡:Scan",saveBtn:"Save",loadBtn:"Load",buyMenuBtn:"Buy",sellMenuBtn:"Sell",repairBtn:"Repair",rechargeBtn:"Recharge",comNetBtn:"ComNet"}
 
 
 //emojis are cool 👨‍💻
@@ -53,6 +51,7 @@ for(let k in menu_option){
 };
 
 
+
 class Button{
   constructor(text,id,){
     this.id=id;
@@ -67,13 +66,22 @@ class Button{
 
     btnListner.addEventListener("click",function(){
       switch (this.id) {
+        case "comNetBtn":
+        comNet.display()
+        break;
+        case "repairBtn":
+        ship.heal();
+        break;
+        case "rechargeBtn":
+        ship.recharge();
+        break;
         case "sellMenuBtn":
         var option = 'sell'
-          gameMap.trade(spaceObject,option);
+          gameMap.trade(spaceObject,"sell");
         break;
         case "buyMenuBtn":
         var option = 'buy'
-          gameMap.trade(spaceObject,option);
+          gameMap.trade(spaceObject,"buy");
 
           break;
         case "mapBtn":
@@ -83,7 +91,7 @@ class Button{
           menu()
           break;
         case "mineBtn":
-          cdnn(5,"mining",gameMap,spaceObject)
+          cdnn(ship.equipment.laser.power*2,"mining",gameMap,spaceObject)
           document.getElementById("time").innerHTML = timeHTML
           document.getElementById('terminalMenu').innerHTML = `
           |${buttons.menuBtn.html}|
@@ -128,52 +136,159 @@ class Button{
 
 
 }
-  let Ship = function(name){
-      let hp = Math.floor(Math.random() * (20 - 16 + 1)) + 16; ;
-      let mana = Math.floor(Math.random() * (20 - 12 + 1)) + 12; ;
+var ComNet = function(){
+  this.logs ='';
+  this.displayWindow =`
+  <div id='comNet' style='overflow-y: scroll;height:300px;border:solid 1px rgba(18,236,24,.5)'>
+  <p class='blinking'>messages Here
+  <p id='logs'>
+  </div>
+  <div id='aaa'></div>
 
+  `;
+
+}
+
+ComNet.prototype.display = function(){
+  terminal.innerHTML = this.displayWindow
+  document.getElementById('logs').innerHTML= this.logs;
+  terminal.innerHTML+=`${buttons.menuBtn.html}`
+
+  if(ship.stats.fule == 0){
+    //document.getElementById('comNet') = this.logs
+    let aaa =document.getElementById('aaa');
+    aaa.innerHTML +=`
+    <div id="time"></div>
+    `;
+    aaa.innerHTML += `<button id="remote">Call AAA</button>`
+    let remote = document.getElementById('remote')
+    remote.addEventListener("click",function(){
+      cdnn(10,"Waiting on Refule Crew",)
+      console.log("resrts tetas  asf as a das ae asdf")
+    });
+
+  }
+  buttons.menuBtn.activateBtn();
+};
+
+var Equipment = function(name,hp,lv,power,powerUseage){
+  this.name= name;
+  this.hp = hp;
+  this.lv = lv;
+  this.power =power;
+  this.powerUseage = powerUseage ;
+};
+
+var Ship = function(name){
 
       this.icon='🚀';
       this.name = name;
-      this.hp = hp;
-      this.maxHp=hp;
-      this.maxMana=mana;
-      this.mana = mana;
+
+
       this.position= 'A5';
-      this.icon= shipIcon
       this.stats={
+        hp :100,
         air:100,
         food:100,
         water:100,
         power:100,
         fule:100,
-        credits:0
+        credits:5
 
       }
         this.equipment={
         scannerlv:1,items:[]
       };
+      //Equipment(name,hp,lv,power,powerUseage)
+      this.equipment["scanner"] = new Equipment("X-Ray Scanner",50,1,5,3);
+      this.equipment['laser'] = new Equipment("Basic Laser",20,1,5,.5);
+      this.equipment['engine'] = new Equipment("Merlin Drive",40,1,1,6);
       this.equippedWeapon ={
 
       };
+      this.maxHp= this.stats.hp;
+      this.maxpower= this.stats.power;
 
-  }
+
+}
+Ship.prototype.useEquipment = (stat,equipment)=> {
+  ship.stats[stat] -= ship.equipment[equipment].powerUseage;
+}
+Ship.prototype.heal =function(type) {
+
+    if(this.stats.hp == this.maxHp){
+      terminal.innerHTML =`<center>
+      <span  ><h3 class ="blinking">[No Damageto repair]</h3></span>
+      </center>
+      `;
+      setTimeout(()=>{gameMap.displayMap()},2000)
+    }else{
+          if(this.stats.credits >= 10){
+            console.log(`credits good`)
+            this.stats.credits -=10
+            this.stats.hp+=15
+            if(this.stats.power > this.maxHp){
+              console.log(`fixed over charged`)
+              this.stats.power = this.maxHp
+            }
+          }else{
+            console.log(`%cnot enough Credits!credits:${ship.stats.credits}|cost:10`,`color:red;background:black`)
+            terminal.innerHTML =`
+            <span class ="blinking" style="color:red"><h3>[Not Enough Credits]</h3></span>
+            `;
+            setTimeout(()=>{gameMap.displayMap()},3000)
+          }
+        }
+          let t = document.getElementById("info") ;
+          t.innerHTML= `${this.statsDisplay()}`;
 
 
-  Ship.prototype.statsDisplay= function(){
+}
+Ship.prototype.recharge = function() {
+
+  if(this.stats.power == this.maxpower){
+    terminal.innerHTML =`<center>
+    <span class ="blinking" style="color:green"><h3>[Power Levels Optimal]</h3></span>
+    </center>
+    `;
+    setTimeout(()=>{gameMap.displayMap()},5000)
+    console.log('full')
+  }else{
+        if(this.stats.credits >= 10){
+          console.log(`credits good`)
+          this.stats.credits -=10
+          this.stats.power+=15
+          if(this.stats.power > this.maxpower){
+            console.log(`fixed over charged`)
+            this.stats.power = this.maxpower
+          }
+        }else{
+          console.log(`%cnot enough Credits!credits:${ship.stats.credits}|cost:10`,`color:red;background:black`)
+          terminal.innerHTML =`
+          <span class ="blinking" style="color:red"><h3>[Not Enough Credits]</h3></span>
+          `;
+          setTimeout(()=>{gameMap.displayMap()},5000)
+        }
+      }
+        let t = document.getElementById("info") ;
+        t.innerHTML= `${this.statsDisplay()}`;
+
+};
+Ship.prototype.statsDisplay= function(){
     let e = Object.entries(this.stats);
+
     let html =`name:${this.name}
+
     hp:${this.hp}
     mana:${this.mana}
     Status:${this.status}
 
-    <table>`;
+    <table class='info' >`;
 
-    for (let i in e){
+    for (let i in this.stats){
 
       html+=`
-      <td>${e[i][0]}</td>
-      <td>${e[i][1]}</td>
+      <td>${i}  ${this.stats[i]}</td>
       `
     }
 
@@ -183,7 +298,84 @@ class Button{
     `;
 
     return html;
-  };
+};
+///set if to switch usie end for loop
+Ship.prototype.move = function(destination) {
+  var end = false;
+  this.status = 'Traveling'
+  let distance= BFS(gameMap,this.position,destination)
+  distance.shift()
+  console.log("[move]",distance)
+  if (ship.equipment['engine'].powerUseage > ship.stats.fule ||ship.equipment['engine'].powerUseage >ship.stats.fule){
+    console.log('re')
+    document.getElementById('popUp').style.display = 'inline'
+    document.getElementById('popUp').innerHTML = 'No enough fule'
+    comNet.addComNet('not enough Fule')
+    setTimeout(()=>gameMap.displayMap(),1000)
+
+  }else{
+    for(let i in distance){
+
+      let timeout1 = setTimeout(function(){
+
+
+                    if (ship.stats.fule < 0 || ship.equipment['engine'].powerUseage >ship.stats.fule){
+                      console.log('re')
+                      document.getElementById('popUp').style.display = 'block'
+                      document.getElementById('popUp').innerHTML = 'No fule'
+                      comNet.addComNet('no Fule')
+                      ship.stats.fule = 0
+                    gameMap.displayMap()
+                    clearTimeout(timeout1)
+                  }else if(ship.stats.fule -ship.equipment['engine'].powerUseage <ship.stats.fule){
+
+
+                    ship.position =distance[i];
+                    ship.stats.fule -= ship.equipment['engine'].powerUseage
+                            comNet.addComNet(`traveled ${distance[i]}`)
+                            gameMap.displayMap()
+
+                  }
+
+
+document.getElementById("info").innerHTML = ship.statsDisplay();
+            }, i*500);
+    }
+  // for(let i =0;i<distance.length;i++){
+  //   let timeout = setTimeout(function(){
+  //     if (ship.stats.fule < 0 || ship.equipment['engine'].powerUseage >ship.stats.fule){
+  //       console.log('re')
+  //       document.getElementById('popUp').style.display = 'block'
+  //       document.getElementById('popUp').innerHTML = 'No fule'
+  //       comNet.addComNet('no Fule')
+  //       ship.stats.fule = 0
+  //
+  //       clearTimeout(timeout)
+  //     //  i = distance.length
+  //       setTimeout(()=>gameMap.displayMap(),1000)
+  //
+  //         document.getElementById("info").innerHTML = ship.statsDisplay();
+  //       end = true
+  //     }else{
+  //           ship.position =distance[i];
+  //           ship.stats.fule -= ship.equipment['engine'].powerUseage*3
+  //
+  //           comNet.addComNet(`traveled ${distance[i]}`)
+  //           gameMap.displayMap()
+  //
+  //           document.getElementById("info").innerHTML = ship.statsDisplay();
+  //         }
+  //       }, i*500);
+  //         console.log(end)
+  //         if(end == true){
+  //           i+i
+  //           console.log(i)
+  //         }
+  //
+  //   };
+  }
+
+};
 
 let CargoHold =function(owner){
   this.cargo={};
@@ -227,7 +419,7 @@ CargoHold.prototype.displayCargo = function(){
           switch (Object.keys(this.cargo).length) {
 
         case 0:
-        console.log(`%c${this.name} has No cargo`,"background:red;color:blue")
+        console.log(`%c${this.owner} has No cargo`,"background:red;color:blue")
         let row = document.createElement('tr')
         row.innerHTML=`<td>No cargo</td>`
         table.appendChild(row)
@@ -239,7 +431,7 @@ CargoHold.prototype.displayCargo = function(){
       //for(items in this.cargo)
       buttons.menuBtn.activateBtn()
     };
-  CargoHold.prototype.addCargo=function(cargo){
+CargoHold.prototype.addCargo=function(cargo){
     ///grid into array
 
     let id = cargo.name;
@@ -293,14 +485,14 @@ CargoHold.prototype.deleteCargo=function(cargo){
     //clean up cargos
 
   }
-  var Mineral =    function (name,price,){
+var Mineral =    function (name,price,){
         this.name = name;
         this.price = price;
         this.text="buy";
         //this.graph=graph;
         this.html =`<button class='menu_button_class' id='${name}'>${this.text}</button>`;
 
-      };
+};
 
 
 
@@ -341,8 +533,7 @@ var sellItem=(spaceObject,item)=>{
 
 
 
-/*
-𝕤𝕡𝕒𝕔𝕖𝕊𝕥𝕒𝕥𝕚𝕠𝕟*/
+
 ///create buying window
 var buyerMenu = (spaceObject)=>{
     let tradeButtons =makeBuyButtons(spaceObject);
@@ -393,24 +584,7 @@ if (spaceObject.cargoHold.cargo[val].value != 0)
 
 
 };
-var buyWindow =function(spaceObject,option){
 
-  //let tradeBtn = new Button(option);
-
-          terminal.innerHTML = `<center>${spaceObject.name}'s Shop <br>
-          <div class='.grid-container' style=height:350px;>
-          <div class='.grid-container' id='cargo' >${buyTable}</div>
-          </div>
-          <div class='terminalMenu' id='terminalMenu'>
-          ${buttons.menuBtn.html}||  ${buttons.mapBtn.html}||
-          </div>
-          `;
-
-          buttons.mapBtn.activateBtn()
-          buttons.menuBtn.activateBtn()
-          tradeButtonsActivator(spaceObject,option)
-
-    };
 
 var makeBuyButtons=function(spaceObject){
   let tradeButtons={}
@@ -430,29 +604,32 @@ var tradeButtonsActivator = function(spaceObject,option){
   DAN WHEN YOU GET BACK MAKE THIS BUY FUNCTION
   */
   console.log("option:",option)
-  var clicker;
 
+
+  var nav = option;
+  console.log(nav)
   for(let i in spaceObject.cargoHold.cargo){
     //var id= tradeButtons[i].name;
     let tbutton = document.getElementById(`${i}`)
-
+    console.log(i)
     if(tbutton== null){
-    }else
-  //  console.log(tradeButtons[i].id,tbutton)
-{
-tbutton.innerHTML = option
-  tbutton.addEventListener("click",function(){
-  let item = spaceObject.cargoHold.cargo[i]
-  switch (option) {
-    case "buy":
-      buyItem(spaceObject,item)
-      break;
-      case"sell":
-     sellItem(spaceObject,item)
-      break
-    default:
+    }else{
+      console.log(tbutton.innerHTML)
+    tbutton.innerHTML = option
+    console.log(tbutton.innerHTML)
+    let item = spaceObject.cargoHold.cargo[i]
+    tbutton.addEventListener("click",()=>{
 
-  }
+      switch (nav) {
+        case "buy":
+        buyItem(spaceObject,item)
+        break;
+        case"sell":
+        sellItem(spaceObject,item)
+        break
+        default:
+
+      }
 
 
 
@@ -463,25 +640,26 @@ tbutton.innerHTML = option
   }
 };
 
-let SpaceStation = function (){
-  this.name = makeRandomId(1,1,1);
-  if(this.name == undefined){this.name = makeRandomId(1,2)}
-  let stationType = Math.random() > 0.5 ? 1: 2;
-  if(stationType > 1 ){
-    this.type = 'Trade Station';
-    this.description = `${this.type} - ${this.name}`;
+SpaceStation = function (){
+ this.name = makeRandomId(1,1,1);
+ this.hp = 100;
+ if(this.name == undefined){this.name = makeRandomId(1,2)}
+ let stationType = Math.random() > 0.5 ? 1: 2;
+ if(stationType > 1 ){
+   this.type = 'Trade Station';
+   this.description = `${this.type} - ${this.name}`;
 
-  }else{
-    this.type = 'Repair Station';
-    this.description = `${this.type} - ${this.name}`;
-  }
-  let randChar1 =gridChars[Math.round(Math.random()*9)];
-  let randChar2=gridChars2[Math.round(Math.random()*9)];
-  let randPos =randChar1+randChar2;
-  this.position = randPos;
-  this.icon = `🛰️`;
-  this.scanned =false;
-  this.spaceBodyType='Space Station';
+ }else{
+   this.type = 'Repair Station';
+   this.description = `${this.type} - ${this.name}`;
+ }
+ let randChar1 =gridChars[Math.round(Math.random()*9)];
+ let randChar2=gridChars2[Math.round(Math.random()*9)];
+ let randPos =randChar1+randChar2;
+ this.position = randPos;
+ this.icon = `🛰️`;
+ this.scanned =false;
+ this.spaceBodyType='Space Station';
 }
 
 
@@ -489,112 +667,114 @@ let SpaceStation = function (){
 
 SpaceStation.prototype.sellWindow=function(graph){
 
-      terminal.innerHTML=`<div class='terminalContent'>
-    </div>
-    ${buttons.mapBtn.html} ${buttons.menuBtn.html}
-  `;
+     terminal.innerHTML=`<div class='terminalContent'>
+   </div>
+   ${buttons.mapBtn.html} ${buttons.menuBtn.html}
+ `;
 
-  buttons.menuBtn.activateBtn()
-  buttons.mapBtn.activateBtn()
+ buttons.menuBtn.activateBtn()
+ buttons.mapBtn.activateBtn()
 
 }
 SpaceStation.prototype.stationMenu=function(){
-    this.scanned=true;
-    var option;
-    var activator=[];
-    var buttonsList =[buttons.mapBtn, buttons.menuBtn];
-    switch (this.type) {
-    case "Trade Station":
-      buttonsList.push(buttons.buyMenuBtn)
-      buttonsList.push(buttons.sellMenuBtn)
-      option=`
-      ${buttonsList[2].html}
-      ${buttonsList[3].html}
-      `
+   this.scanned=true;
+   let activate;
+   var option;
+   var activator=[];
+   var buttonsList =[buttons.mapBtn, buttons.menuBtn];
+   switch (this.type) {
+   case "Trade Station":
+     buttonsList.push(buttons.buyMenuBtn)
+     buttonsList.push(buttons.sellMenuBtn)
+     option=`
+     ${buttonsList[2].html}
+     ${buttonsList[3].html}
+     `
 
 
-      break;
-    case "Repair Station":
+     break;
+   case "Repair Station":
 
-    buttonsList.push(buttons.repairBtn)
-    buttonsList.push(buttons.rechargeBtn)
-    option=`
-    ${buttonsList[2].html}
-    ${buttonsList[3].html}
-    `
+   buttonsList.push(buttons.repairBtn)
+   buttonsList.push(buttons.rechargeBtn)
+   option=`<br>
+   ${buttonsList[2].html} 10 credits <br>
+   ${buttons.rechargeBtn.html} 5 credits <br>
+   `
 
-      break;
-    default:
+     break;
+   default:
 
-  }
-  terminal.innerHTML = `<center>
-    <div id="trade-window" class="terminalContent">
-    ${this.description}
-    ${option}
-    </div>
-    ${buttons.mapBtn.html} ${buttons.menuBtn.html}
-  `;
-    for(let i in buttonsList){
-      buttonsList[i].activateBtn(this);
-    }
-
-  //buttons.menuBtn.activateBtn(this)
-  //buttons.mapBtn.activateBtn(this)
+ }
+ terminal.innerHTML = `<center>
+   <div id="trade-window" class="terminalContent">
+   ${this.description}
+   ${option}
+   </div>
+   ${buttons.mapBtn.html} ${buttons.menuBtn.html}
+ `;
+   for(let i in buttonsList){
+     buttonsList[i].activateBtn(this);
+     console.log(buttonsList[i])
+   }
+activate
+ //buttons.menuBtn.activateBtn(this)
+ //buttons.mapBtn.activateBtn(this)
 }
 
-SpaceStation.prototype.generateMinerals=function(scanlv){
+SpaceStation.prototype.generateMinerals = function(scanlv){
 
-  let base_minerals= ['iron','Aluminum','copper','zinc','nickel','tin'];
-  let precious_metals=['Gold','Silver','Platinum','Palladium'];
-  let utility_metals=['Titanium','Uranium','Lithium'];
-  var price;
-  var bScan =0;
-  var pScan =0;
-  var uScan =0;
-  var bPrice=5;
-  var uPrice=10;
-  // if (this.scanned ==true){
-  //   console.log('scanned')
-  // }else{
-  if(scanlv<=1){//generate base metals
-    bScan =7
+ let base_minerals= ['iron','Aluminum','copper','zinc','nickel','tin'];
+ let precious_metals=['Gold','Silver','Platinum','Palladium'];
+ let utility_metals=['Titanium','Uranium','Lithium'];
+ var price;
+ var bScan =0;
+ var pScan =0;
+ var uScan =0;
+ var bPrice=5;
+ var uPrice=10;
+ // if (this.scanned ==true){
+ //   console.log('scanned')
+ // }else{
+ if(scanlv<=1){//generate base metals
+   bScan =7
 
-    let uScanChance = Math.round((2/3)*100);
-    let chance = Math.floor(Math.random()*100);
-    if(uScanChance >= chance){
-      console.log(`utility metals!`)
-      uScan=6
-    }else{console.log(`no utility metal ${chance}`)}
-  }
-  if(scanlv >=2){
-    bScan =7
-    pScan =2
-  }
-  if(scanlv >=3){
-    bScan =10
-  }
-  ///  base metals scan
+   let uScanChance = Math.round((2/3)*100);
+   let chance = Math.floor(Math.random()*100);
+   if(uScanChance >= chance){
+     console.log(`utility metals!`)
+     uScan=6
+   }else{console.log(`no utility metal ${chance}`)}
+ }
+ if(scanlv >=2){
+   bScan =7
+   pScan =2
+ }
+ if(scanlv >=3){
+   bScan =10
+ }
+ ///  base metals scan
 
-  for (let i = 0; i < bScan; i++) {
-    let baseMinerals = base_minerals[Math.floor(Math.random()* base_minerals.length)];
-    //let mineral = baseMinerals;
+ for (let i = 0; i < bScan; i++) {
+   let baseMinerals = base_minerals[Math.floor(Math.random()* base_minerals.length)];
+   //let mineral = baseMinerals;
 
-    let mineral = new Mineral(baseMinerals,bPrice);
-    console.log(`%c[SpaceStration Generation]Creating ${mineral.name}`,'backgorund:gold;color:purple')
-    this.cargoHold.addCargo(mineral)
+   let mineral = new Mineral(baseMinerals,bPrice);
+   console.log(`%c[SpaceStration Generation]Creating ${mineral.name}`,'backgorund:gold;color:purple')
+   this.cargoHold.addCargo(mineral)
 
-  }
-  for (let i = 0; i < uScan; i++) {
-    let utilityMetals = utility_metals[Math.floor(Math.random()* utility_metals.length)];
-    let metal = utilityMetals;
+ }
+ for (let i = 0; i < uScan; i++) {
+   let utilityMetals = utility_metals[Math.floor(Math.random()* utility_metals.length)];
+   let metal = utilityMetals;
 
-    metal = new Mineral(metal,uPrice);
-    console.log(`%c[SpaceStration Generation]Creating ${metal.name}`,'background:gold;color:purple')
-    this.cargoHold.addCargo(metal)
+   metal = new Mineral(metal,uPrice);
+   console.log(`%c[SpaceStration Generation]Creating ${metal.name}`,'background:gold;color:purple')
+   this.cargoHold.addCargo(metal)
 
-  }
-  // }
-  this.scanned=true;
+ }
+ // }
+ this.scanned=true;
 };
 
 ///asteroid CLASS~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -621,6 +801,8 @@ let Asteroid =function() {
   this.icon = '🌑';
   this.scanned =false;
   this.spaceBodyType='Asteroid';
+  this.hp=100
+
 
 };
 Asteroid.prototype.generateMinerals=function(scanlv){
@@ -634,29 +816,40 @@ Asteroid.prototype.generateMinerals=function(scanlv){
   var uScan =0;
   var bPrice=5;
   var uPrice=10;
-  // if (this.scanned ==true){
-  //   console.log('scanned')
-  // }else{
-  if(scanlv<=1){//generate base metals
-    bScan =5
+  let scanPower = ship.equipment.scanner.power
+  let uScanChance = Math.round((1/4)*100);
+  let chance = Math.floor(Math.random()*100);
+switch (scanlv) {
+  case 1:
 
-    let uScanChance = Math.round((1/3)*100);
-    let chance = Math.floor(Math.random()*100);
-    if(uScanChance >= chance){
-      console.log(`utility metal`)
-      uScan=1
-    }else{console.log(`no utility metal ${chance}`)}
-  }
-  if(scanlv >=2){
-    bScan =7
-    pScan =2
-  }
-  if(scanlv >=3){
-    bScan =10
-  }
+
+
+  if(uScanChance >= chance){
+    console.log(`utility metal`)
+    uScan=1
+  }else{console.log(`no utility metal ${chance}`)}
+    break;
+  case 2:
+   uScanChance = Math.round((1/3)*100);
+  if(uScanChance >= chance){
+    console.log(`utility metal`)
+    uScan=3
+  }else{console.log(`no utility metal ${chance}`)}
+    break;
+  case 3:
+
+    break;
+  case 4:
+
+    break;
+
+  default:
+
+}
+
   ///  base metals scan
 
-  for (let i = 0; i < bScan; i++) {
+  for (let i = 0; i < scanPower; i++) {
     let baseMinerals = base_minerals[Math.floor(Math.random()* base_minerals.length)];
     //let mineral = baseMinerals;
 
@@ -704,6 +897,8 @@ Asteroid.prototype.mineMinerals=function(){
       this.minerals.deleteCargo(randomMineral) ;
       console.log(this.minerals.cargo)
       ship.cargoHold.addCargo(randomMineral);
+      this.hp -= ship.equipment.laser.power
+
       //console.log(this.minerals)
     }
 
@@ -721,8 +916,11 @@ function spaceBodiesGenerator(aNum,sNum,graph){
         a = new Asteroid;
       }
 
+
     }
     graph.spaceBodies[a.name]= a;
+    console.log(`apos:${a.position}`)
+scannedEdges(a.position);
   }
   for (var i = 0; i < sNum; i++) {
     let s = new SpaceStation;
@@ -740,20 +938,24 @@ function spaceBodiesGenerator(aNum,sNum,graph){
 }
 ///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 var menu =function(){
-
-
-document.getElementById('terminal').innerHTML = `
-<center>
+  document.getElementById('terminal').innerHTML = `
+  <center id="buttons">
   ${buttons.mapBtn.html}<br>
   ${buttons.cargoBtn.html}<br>
   ${buttons.saveBtn.html}<br>
   ${buttons.loadBtn.html}
+  ${buttons.comNetBtn.html}
   </center>
   `;
-buttons.mapBtn.activateBtn()
-buttons.cargoBtn.activateBtn()
-buttons.saveBtn.activateBtn()
-buttons.loadBtn.activateBtn()
+// if(ship.stats.fule == 0){
+//   document.getElementById('buttons').innerHTML += ``
+//
+// }
+  buttons.comNetBtn.activateBtn()
+  buttons.mapBtn.activateBtn()
+  buttons.cargoBtn.activateBtn()
+  buttons.saveBtn.activateBtn()
+  buttons.loadBtn.activateBtn()
 }
 
 /*
@@ -762,7 +964,13 @@ var graphMap = new Graph; -> graphMap.makeMap() -> graphMap.displayMap()
 
 graphMap.displayMap() -> this.mapSpaceBodies(); ||-> this.mapClick('travel');
 */
+var scannedEdges = function(id){
+  for (let i in gameMap.graph){
+    if ( gameMap.graph[i].value == id){
+    }
+  }
 
+};
 let Grid = function(aValue,bValue,aIndex,bIndex){
   this.value=aValue+bValue;
   this.aIndex=aIndex;
@@ -821,12 +1029,12 @@ Graph.prototype.makeMap=function(){
     for(let i =0;i<charLength;i++){
       result += `<tr class='mist' id='mapTableRow'>`
       for(let n =0;n<gridChars.length;n++){
-        let node = `${gridChars[i]}${gridChars2[n]}`
+        let node = `${gridChars[i]}${n}`
         m++
-        let num = gridChars2[n] //actors
-        let numPointer = this.getGrid(num);
+        let num = gridChars[n] //actors
+        let numPointer = this.getGrid(n);
         if(numPointer == undefined){
-          var points = new Grid(gridChars[i],gridChars2[n],i,n);
+          var points = new Grid(gridChars[i],n,i,n);
           this.addGrid(points);
         }
 
@@ -837,7 +1045,9 @@ Graph.prototype.makeMap=function(){
       result += `</tr>`;
     };
 
-    result +=`</table>${buttons.menuBtn.html}
+    result +=`</table>
+    <div id='popUp' style="display: none"></div>
+    ${buttons.menuBtn.html}
     <span id='space' style='font-size:16px'; scroll:auto ></span>
     `
 
@@ -950,7 +1160,7 @@ Graph.prototype.mapClick=function(option){
     switch(option){
       case "travel":
 
-      grid.onclick = () => BFS(this,ship.position,end);
+      grid.onclick = () => ship.move(end)///BFS(this,ship.position,end);
 
       break;
       case "mapInfo":
@@ -977,7 +1187,7 @@ Graph.prototype.displayMap=function(){
 Graph.prototype.sectorScan=function(spaceObject){
 
   let html=``;
-  document.getElementById('terminal').innerHTML += `${html}`;
+//  document.getElementById('terminal').innerHTML += `${html}`;
 
 
   console.log(`sector scanning`)
@@ -995,8 +1205,9 @@ Graph.prototype.displayMinerals=function(spaceObject){
   terminal.innerHTML = `<center>${spaceObject.name} <br>
   <div class='.grid-container' style=height:350px;>
   <div class='.grid-container' id='minerals' ></div>
+  <div class='sd' id='time' ></div>
   </div>
-  <div class='sd' id='time' style=display:inline-block;></div>
+
   <div class='terminalMenu' id='terminalMenu'>
   ${buttons.menuBtn.html}||  ${buttons.mapBtn.html}||${buttons.mineBtn.html}
   </div>
@@ -1057,42 +1268,38 @@ Graph.prototype.displayMinerals=function(spaceObject){
 Graph.prototype.trade = (spaceObject,option)=> {
   var trader ;
   var htmls;
+  var other;
   switch (option) {
     case "buy":
         trader = spaceObject
-        htmls ="buy"
+        nav ="buy"
+        other =buttons.sellMenuBtn
       break;
       case "sell":
         trader = ship
-        htmls ="sell"
+        nav ="sell"
+        other = buttons.buyMenuBtn
         break;
     default:
 
   }
-  terminal.innerHTML = `<center>${trader.name} <br>
-  <div class='.grid-container' style=height:350px;>
-  <div class='.grid-container' id='cargo' ></div>
-  </div>
-  <div class='sd' id='time' style=display:inline-block;></div>
-  <div class='terminalMenu' id='terminalMenu'>
-  ${buttons.menuBtn.html}||  ${buttons.mapBtn.html}||
-  </div>
-
+  var row = document.createElement('tr');
+  var table = document.createElement('table');
+  terminal.innerHTML =
+  `
+    <center>${trader.name} <br>
+    <div class='.grid-container' style=height:350px;>
+      <div class='.grid-container' id='cargo' ></div>
+    </div>
+    <div class='sd' id='time' style=display:inline-block;></div>
+    <div class='terminalMenu' id='terminalMenu'>
+      ${buttons.menuBtn.html}||  ${buttons.mapBtn.html}||${other.html}
+    </div>
   `;
+  var cargoEle = document.getElementById('cargo');
+  other.activateBtn(spaceObject)
   buttons.mapBtn.activateBtn(spaceObject)
   buttons.menuBtn.activateBtn(spaceObject)
-
-//  activatebtnBtn('mapBtn',this)
-
-
-
-
-  let cargoEle = document.getElementById('cargo');
-  //terminal.innerHTML = `<table id='t'> </table>`
-  let v = Object.values(trader.cargoHold);////empty before the above loop runs
-  let k = Object.keys(trader.cargoHold);
-  let table = document.createElement('table');
-  let row = document.createElement('tr')
   row.innerHTML=`<td><strong>cargo</strong></td><td><b>AMT</b></td>`
   table.appendChild(row)
   for(let cargo in trader.cargoHold.cargo){
@@ -1105,20 +1312,12 @@ Graph.prototype.trade = (spaceObject,option)=> {
     table.appendChild(row);
 
   } ;
-  ///  table.className = ``;
+  console.log(cargoEle.innerHTML)
+  cargoEle.appendChild(table);
 
-
-
-  cargoEle.appendChild( table);
-  // let     mineBTN=document.getElementById('mineBtn');
-  // mineBTN.onclick = function (){//graph.displayMining(trader);
-  //
-  //
-  // }
-  //  console.log(k,v);///key and value of minerals
   switch (Object.keys(trader.cargoHold).length) {
     case 0:
-    console.log(`%c ${trader.name} has No minerals`,"background:'red';color:'blue'")
+    console.log(`%c ${trader.name} has No cargos`,"background:'red';color:'blue'")
     let row = document.createElement('tr')
     row.innerHTML=`<td>No Minerals Found!</td>`
     table.appendChild(row)
@@ -1131,7 +1330,7 @@ Graph.prototype.trade = (spaceObject,option)=> {
     default:
   }
 
-  tradeButtonsActivator(spaceObject,option)
+  tradeButtonsActivator(spaceObject,nav)
   let t = document.getElementById("info") ;
   t.innerHTML= `${ship.statsDisplay()}`;
 };
@@ -1140,6 +1339,7 @@ const mapSpaceBodies= function(map){
 
   //Display space bodie if it is within the edges of the ship
   for(var grid in map.graph[ship.position].edges){
+
     //  console.log(`${graphMap.graph[ship.position].value},edge${graphMap.graph[ship.position].edges[grid].value}`)
     for (var spaceObject in map.spaceBodies) {
 
@@ -1190,6 +1390,7 @@ const mapSpaceBodies= function(map){
 https://en.wikipedia.org/wiki/Breadth-first_search
 
 */
+
 //start cord and end cord passed in
 const BFS = (g,s,e)=>{
   var start=  g.setStart(s);
@@ -1235,32 +1436,23 @@ const BFS = (g,s,e)=>{
   console.log(distance);
   //multiply the timer by I   delaying the color chage
   //animate ship moving
-  for(let i =0;i<distance.length;i++){
-    setTimeout(function(){
-      ship.position =distance[i]
-      g.displayMap()
-      //  document.getElementById(distance[i]).style.backgroundColor = 'red';
-      //document.getElementById(distance[i]).innerHTML = shipIcon;
-    }, i*50);
-
-
-  }
+return distance
   //reset the map when done  & set the ships position
-
-
-
 }
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /////countdown functions
-
-function cdnn(secs,option,graph,space_object){
-  let countInfo =document.getElementById("countInfo");
+ComNet.prototype.addComNet = function(text) {this.logs += `<br>${text}`};
+var cdnn = (secs,option,graph,spaceObject)=>{
+  let stat;
+  var countInfo =document.getElementById("countInfo");
   let condition =option;
   let now = new Date();
   let timeNow = now.getTime()/1000;
   let newTime = (timeNow + secs ); //add 1 minute
   let newTimeDate = new Date(newTime*1000);
+
   if(newTimeDate == `Invalid Date`){
     let op =document.getElementById("options");
     op.style.backgroundColor = `rgba(0,0,0,.9)`;
@@ -1268,24 +1460,35 @@ function cdnn(secs,option,graph,space_object){
     op.innerHTML = "ERRROR";
   }else {
 
-    ship.status = status['1'];///['Idling',`Traveling`,"Scanning","Minning"];
-    let x = setInterval(function() {
+    //ship.status = status['1'];///['Idling',`Traveling`,"Scanning","Minning"];
+  let x = setInterval(function() {
+    //Option Switch
       switch (option) {
         case "mining":
         var condi= ` ship power ${Math.round(ship.stats.power)}`
-        var stat =ship.stats.power
+        console.log(stat)
+         stat ="power"
+        console.log(stat)
+        ship.status='Mining'
+        console.log(`power before:${ship.stats[stat]}`)
+        ship.useEquipment(stat,'laser')
         break;
         case "tavel":
         var condi= ` ship fule ${Math.round(ship.stats.fule)}`
-        ship.stats.fule
+        stat="fule"
+        break;
+        case "Waiting on Refule Crew":
+
+        stat="fule";
         break;
         default:
+      };
 
-      }
-      console.log(timeNow)
-      console.log(newTime)
-      console.log(now)
-      console.log(newTimeDate);
+
+      // console.log(timeNow)
+      // console.log(newTime)
+      // console.log(now)
+      // console.log(newTimeDate);
       let nowt = new Date().getTime();
       let nowx =newTimeDate.getTime();
       let distance = nowx-nowt;
@@ -1326,30 +1529,42 @@ function cdnn(secs,option,graph,space_object){
         timeEle.innerHTML = timeHTML;
       }
       document.getElementById("info").innerHTML = ship.statsDisplay();
-      // If the count down is finished, write some text
+      // when the count down is finished
       if (nowt >= newTimeDate) {
-        ship.status = status['0'];///['Idling',`Traveling`,"Scanning","Minning"];
+        ship.status = 'Idling';
         clearInterval(x);
         switch (option) {
+          case "Waiting on Refule Crew":
+           document.getElementById("time").innerHTML =``;
+          comNet.logs +="refulled"
+          comNet.display();
+          ship.debt += 3;
+          ship.stats.fule += 50;
+          break;
           case 'travel':
           countInfo.innerHTML = "Arived";
           break;
           case 'mining':
           if(document.getElementById("countInfo") != null){
             document.getElementById("countInfo").innerHTML = "Mining Done";}
-            space_object.mineMinerals();
-            gameMap.displayMinerals(space_object);
+            spaceObject.mineMinerals();
+            if(spaceObject.hp <= 0){
+              delete gameMap.spaceBodies[`${spaceObject.name}`]
+              gameMap.displayMap()
+            }else{
+            gameMap.displayMinerals(spaceObject);
+            }
             break;
-            default:
+          default:
 
           }
 
+          console.log(`power after:${ship.stats[stat]}`)
           document.getElementById("info").innerHTML = ship.statsDisplay();
         }
         if (stat <= 0) {
           ship.status = status[0];///['Idling',`Traveling`,"Scanning","Minning"];
           clearInterval(x);
-
           switch (option) {
             case 'travel':
             document.getElementById("countInfo").innerHTML = "Ran out of fule";
@@ -1358,45 +1573,20 @@ function cdnn(secs,option,graph,space_object){
             document.getElementById("countInfo").innerHTML = "No POWER!";;
             break;
             default:
-
           }
-
           document.getElementById("info").innerHTML = ship.statsDisplay();
         }
-        ship.stats.power -= .5
+
       }, 1000)
-    };
-  }
+
+     console.log(ship.stats[stat])
+    }
+};
   ////end the cound down timer
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\\
 
 
-
-
-
-  //cdnn(120);
-
-  //console.log(timeNow);
-  // create asteroid and generate minerals for it
-
-
-
-  /*scan for spaceObject ->
-  /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
-  /~~~~~~~~~~~~~~Map making~~~~~~~~~~~~~~~~~~~~~~~~~/
-  /~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~/
-
-  Roll 20
-  1-5 1 hour away
-  5-10: 30 mins away
-  10-15 :15 mins away
-  15-18 :10
-  19-20 :5 minuets
-  */
-
-
-  //////////<~~~~~~~~~~~~~~~~~~Ends Make Grid~~~~~~~~~~~~~~>
   let scannerButton= document.getElementById('startGameButton')
   scannerButton.addEventListener("click",function(){
 
@@ -1419,10 +1609,6 @@ console.log( gameMap)
     //asteroids.push(asteroid1)
     spaceBodiesGenerator(10,5,gameMap);
     gameMap.displayMap();
-
-  });
-
-  let bfsscan= document.getElementById('bfs')
-  bfsscan.addEventListener("click",function(){
-
+    comNet = new ComNet();
+    comNet.addComNet("TESt")
   });
