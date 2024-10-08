@@ -300,6 +300,48 @@ Ship.prototype.statsDisplay= function(){
     return html;
 };
 ///set if to switch usie end for loop
+
+Ship.prototype.move = function(destination) {
+  if (ship.equipment['engine'].powerUseage > ship.stats.fule) {
+    console.log('re');
+    document.getElementById('popUp').style.display = 'inline';
+    document.getElementById('popUp').innerHTML = 'No enough fule';
+    comNet.addComNet('not enough Fule');
+    return; // Early exit if insufficient fuel
+  }
+
+  const path = BFS(gameMap, this.position, destination);
+
+  if (!path || !path.length) {
+    console.log('Error: Invalid path');
+    return; // Handle invalid path
+  }
+
+  let remainingFuel = ship.stats.fule;
+
+  for (let i = 0; i < path.length; i++) {
+    remainingFuel -= ship.equipment['engine'].powerUseage;
+
+    if (remainingFuel < 0) {
+      console.log('re');
+      document.getElementById('popUp').style.display = 'block';
+      document.getElementById('popUp').innerHTML = 'No fuel';
+      comNet.addComNet('no Fule');
+      ship.stats.fule = 0;
+      break; // Stop movement if fuel runs out
+    }
+
+    ship.position = path[i];
+    ship.stats.fule = remainingFuel;
+    comNet.addComNet(`traveled to ${path[i]}`);
+    gameMap.displayMap();
+  }
+
+  document.getElementById("info").innerHTML = ship.statsDisplay();
+};
+
+
+/*
 Ship.prototype.move = function(destination) {
   var end = false;
   this.status = 'Traveling'
@@ -336,11 +378,12 @@ Ship.prototype.move = function(destination) {
                             gameMap.displayMap()
 
                   }
-
+*/
 
 document.getElementById("info").innerHTML = ship.statsDisplay();
             }, i*500);
     }
+    
   // for(let i =0;i<distance.length;i++){
   //   let timeout = setTimeout(function(){
   //     if (ship.stats.fule < 0 || ship.equipment['engine'].powerUseage >ship.stats.fule){
